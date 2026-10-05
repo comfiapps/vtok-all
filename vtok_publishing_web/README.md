@@ -4,44 +4,33 @@ VTOK 플랫폼의 메인 브랜딩 웹사이트, 화이트리스트 사전 등�
 
 ---
 
-## 📐 1. 모듈 내부 상세 아키텍처 (Detailed Module Architecture)
+## 📐 1. 모듈 내부 상세 아키텍처 (Module Architecture)
 
 ```mermaid
-flowchart TD
-    subgraph Frontend ["🖥️ ClientApp Layer (React 17 SPA)"]
-        direction LR
-        TIMER_UI["⏱️ CountDownTimer\n(1s Interval Round Calculation)"]
-        MINT_UI["📦 MintBox\n(Minting Action & Progress Bar)"]
-        HOUSE_UI["🏠 HousePreview\n(Animated WebP Avatar)"]
-        API_REQ["📡 Axios Client (apiRequests.js)\n(GET /api/time, POST /api/approval)"]
-        SIGNALR_CLIENT["⚡ SignalR Client\n(HubConnectionBuilder /chatHub)"]
-
-        MINT_UI --> API_REQ
-        MINT_UI <--> SIGNALR_CLIENT
+flowchart LR
+    subgraph ClientApp ["🖥️ ClientApp (React 17)"]
+        UI["UI 컴포넌트\n(MintBox / CountDownTimer)"]
+        WS_CLIENT["SignalR 클라이언트\n(/chatHub 수신)"]
     end
 
-    subgraph Backend ["⚙️ ASP.NET Core Backend API Layer"]
-        direction TB
-        CTRL["🎮 MittingController\n- GET /api/time, /api/mitting, /api/result\n- GET /api/addr/{id}, /api/count/{round}\n- POST /api/sitin/{id}, /api/approval/{id}"]
-        SVC["🧠 MittingService (Business Validation)\n- Type 6: Time Check\n- Type 1: Sold Out (cnt >= time.Count)\n- Type 3: Whitelist Verification\n- Type 4: Remaining Capacity Check"]
-        HOSTED_SVC["🔄 TimedHostedService (IHostedService)\n- 5s Interval DoWork Loop\n- Redis Status Polling & Broadcast Trigger"]
-        HUB["💬 ChatHub (SignalR Websocket Hub)\n- Endpoint: /chatHub\n- Broadcasts: Count, Time, Web State"]
-
-        CTRL --> SVC
-        HOSTED_SVC --> HUB
+    subgraph Backend ["⚙️ Web API (.NET 6)"]
+        API["MittingController\n(REST API 엔드포인트)"]
+        SVC["MittingService\n(민팅 자격 및 수량 검증)"]
+        HOSTED["TimedHostedService\n(5초 주기 상태 조회 루프)"]
+        HUB["ChatHub\n(SignalR WebSocket 허브)"]
     end
 
-    subgraph Storage ["💾 Infrastructure & Storage Layer"]
-        REDIS[("⚡ Redis Cache (Port 6379)\n- Keys: Mitting{round}, MintingTime\n- Realtime Counter Cache")]
-        MYSQL[("🗄️ MySQL Database (Port 3306)\n- SitinAddr (Queue Requests)\n- MittingAddr (Confirmed Transactions)")]
-
-        SVC -->|EF Core ApiDataContext| MYSQL
-        HOSTED_SVC -->|StackExchange.Redis| REDIS
-        CTRL -->|Read Count| REDIS
+    subgraph Storage ["💾 Storage & Cache"]
+        MYSQL[("MySQL DB\n(SitinAddr / MittingAddr)")]
+        REDIS[("Redis Cache\n(MintingTime / Mitting{round})")]
     end
 
-    API_REQ -->|HTTP REST API| CTRL
-    HUB -.->|WebSocket Realtime Broadcast| SIGNALR_CLIENT
+    UI -->|1. REST API 호출| API
+    API -->|2. 비즈니스 검증| SVC
+    SVC -->|3. DB 저장 및 차감| MYSQL
+    HOSTED -->|4. 상태 조회| REDIS
+    HOSTED -->|5. 이벤트 전파| HUB
+    HUB -.->|6. 웹소켓 실시간 카운트 브로드캐스트| WS_CLIENT
 ```
 
 ---

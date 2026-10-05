@@ -4,33 +4,125 @@ VTOK 플랫폼의 메인 브랜딩 웹사이트, 화이트리스트 사전 등�
 
 ---
 
-## 📐 1. 모듈 내부 상세 아키텍처 (Module Architecture)
+## 📐 1. 모듈 전체 아키텍처 및 데이터 흐름 (Architecture Specification)
+
+본 시스템은 **React 17 SPA 프론트엔드**, **ASP.NET Core Web API 백엔드**, **SignalR 웹소켓 허브**, **Redis 실시간 캐시**, **MySQL RDBMS**로 구성된 풀스택 아키텍처를 가집니다.
+
+---
+
+### 1.1 컴포넌트 & 레이어 구조도 (Component Architecture Map)
 
 ```mermaid
-flowchart LR
-    subgraph ClientApp ["🖥️ ClientApp (React 17)"]
-        UI["UI 컴포넌트\n(MintBox / CountDownTimer)"]
-        WS_CLIENT["SignalR 클라이언트\n(/chatHub 수신)"]
+flowchart TD
+    subgraph Frontend ["🖥️ ClientApp Layer (React 17 SPA)"]
+        subgraph UI ["UI 컴포넌트 계층 (src/components)"]
+            MINT_UI["📦 MintBox\n(민팅 진행률 & 신청 버튼)"]
+            TIMER_UI["⏱️ CountDownTimer\n(남은 시간 1초 간격 계산)"]
+            HOUSE_UI["🏠 HousePreview\n(3D/WebP 애니메이션)"]
+        end
+
+        subgraph ClientAPI ["API & SignalR 연동 계층 (src/api)"]
+            API_REQ["📡 apiRequests.js\n(Axios REST API 통신)"]
+            WS_CLIENT["⚡ HubConnectionBuilder\n(SignalR WebSocket 클라이언트)"]
+        end
+
+        MINT_UI --> API_REQ
+        MINT_UI <--> WS_CLIENT
     end
 
-    subgraph Backend ["⚙️ Web API (.NET 6)"]
-        API["MittingController\n(REST API 엔드포인트)"]
-        SVC["MittingService\n(민팅 자격 및 수량 검증)"]
-        HOSTED["TimedHostedService\n(5초 주기 상태 조회 루프)"]
-        HUB["ChatHub\n(SignalR WebSocket 허브)"]
+    subgraph Backend ["⚙️ ASP.NET Core Backend API Layer"]
+        subgraph Controllers ["API 컨트롤러 계층 (ApiControllers/)"]
+            CTRL["🎮 MittingController.cs\n- GET /api/time, /api/mitting, /api/result\n- GET /api/addr/{id}, /api/count/{round}\n- POST /api/sitin/{id}, /api/approval/{id}"]
+        end
+
+        subgraph Services ["비즈니스 서비스 계층 (Service/)"]
+            SVC["🧠 MittingService.cs\n- Type 6: 라운드 시간 검증\n- Type 1: 수량 소진 검증 (cnt >= time.Count)\n- Type 3: 화이트리스트 검증\n- Type 4: 남은 잔여 수량 차감 검증"]
+            HOSTED["🔄 TimedHostedService.cs (IHostedService)\n- 5초 주기 백그라운드 DoWork 루프\n- Redis 민팅 상태 감시 및 브로드캐스트"]
+        end
+
+        subgraph Hubs ["웹소켓 허브 계층 (Hubs/)"]
+            HUB["💬 ChatHub.cs\n- 경로: /chatHub\n- 브로드캐스트: Count, Time, Web"]
+        end
+
+        CTRL --> SVC
+        HOSTED --> HUB
     end
 
-    subgraph Storage ["💾 Storage & Cache"]
-        MYSQL[("MySQL DB\n(SitinAddr / MittingAddr)")]
-        REDIS[("Redis Cache\n(MintingTime / Mitting{round})")]
+    subgraph Storage ["💾 Infrastructure & Data Layer"]
+        REDIS[("⚡ Redis Cache (Repository/RedisRepository.cs)\n- Mitting{round} (라운드별 누적 민팅 수량)\n- MintingTime (현재 라운드 진행 상태)")]
+        MYSQL[("🗄️ MySQL Database (Data/ApiDataContext.cs)\n- SitinAddr (사전 대기열 등록 주소)\n- MittingAddr (최종 승인 및 결제 내역)")]
+
+        SVC -->|EF Core DbContext| MYSQL
+        CTRL -->|실시간 카운트 조회| REDIS
+        HOSTED -->|5초 간격 상태 조회| REDIS
     end
 
-    UI -->|1. REST API 호출| API
-    API -->|2. 비즈니스 검증| SVC
-    SVC -->|3. DB 저장 및 차감| MYSQL
-    HOSTED -->|4. 상태 조회| REDIS
-    HOSTED -->|5. 이벤트 전파| HUB
-    HUB -.->|6. 웹소켓 실시간 카운트 브로드캐스트| WS_CLIENT
+    API_REQ -->|HTTP REST API| CTRL
+    HUB -.->|SignalR Realtime WebSocket Push| WS_CLIENT
+```
+
+---
+
+### 1.2 민팅 승인 및 실시간 카운트 브로드캐스트 시퀀스 (Minting & SignalR Sequence)
+
+사용자가 민팅 버튼을 클릭했을 때의 HTTP 요청부터 DB 반영, Redis 캐싱 및 SignalR 웹소켓을 통한 전 사용자 실시간 카운터 업데이트까지의 시퀀스입니다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 👤 사용자 브라우저
+    participant UI as 📦 MintBox (React)
+    participant Req as 📡 apiRequests.js
+    participant API as 🎮 MittingController
+    participant Svc as 🧠 MittingService
+    participant DB as 🗄️ MySQL (ApiDataContext)
+    participant Redis as ⚡ Redis (RedisRepository)
+    participant Hosted as 🔄 TimedHostedService
+    participant Hub as 💬 ChatHub (SignalR)
+
+    User->>UI: 1. "민팅하기" 버튼 클릭
+    UI->>Req: 2. postApproval(id, dto) 호출
+    Req->>API: 3. POST /api/approval/{id}
+    API->>Svc: 4. Approval(id, mittingDto) 검증 요청
+    
+    rect rgb(240, 248, 255)
+        note over Svc,DB: 예외 조건 및 잔여 수량 정밀 검증
+        Svc->>DB: 5. SitinAddr / MittingAddr 화이트리스트 & 이전 수량 조회
+        Svc->>Svc: 6. 수량 검증 (Type 1, 3, 4, 6 체크)
+        Svc->>DB: 7. MittingAddr 승인 내역 Insert & SitinAddr 차감 Update
+        Svc->>Redis: 8. Mitting{round} 카운트 Increment
+    end
+
+    Svc-->>API: 9. 승인 결과 Return
+    API-->>Req: 10. HTTP 200 OK 응답
+    Req-->>UI: 11. 승인 성공 알림 UI 표시
+
+    par 백그라운드 5초 타이머 브로드캐스트
+        Hosted->>Redis: 12. 5초마다 GetMintingTime() & Mitting{round} 조회
+        Hosted->>Hub: 13. SendAsync("Receive", "Count", cnt) 트리거
+        Hub-->>UI: 14. WebSocket "Count" 이벤트 브로드캐스트 (전체 사용자)
+        UI->>UI: 15. 민팅 진행률 Bar 및 카운터 UI 실시간 렌더링
+    end
+```
+
+---
+
+### 1.3 백그라운드 서비스 동작 및 예외 처리 흐름 (Hosted Service Lifecycle)
+
+```mermaid
+flowchart TD
+    START([🚀 TimedHostedService 시작]) --> LOOP[⏳ 5초 간격 DoWork 실행]
+    LOOP --> REDIS_QUERY[⚡ Redis GetMintingTime 조회]
+    
+    REDIS_QUERY --> COND{현재 민팅 상태}
+    COND -->|state == "Start"| START_BRANCH[Mitting1 카운터 및 남은 시간 수신]
+    COND -->|state == "End"| END_BRANCH[전체 웹 클라이언트에 "End" 전송 후 Timer 종료]
+    COND -->|기타 상태| IDLE_BRANCH[현재 라운드 상태 브로드캐스트]
+
+    START_BRANCH --> BROADCAST[💬 ChatHub SendAsync "Receive", "Time", response]
+    IDLE_BRANCH --> BROADCAST
+    BROADCAST --> LOOP
+    END_BRANCH --> STOP([🛑 Hosted Service Dispose])
 ```
 
 ---

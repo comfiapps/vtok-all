@@ -1,6 +1,6 @@
-# 🐹 go_practice (Go 언어 기초 예제)
+# 🐹 go_practice (Go 언어 입문 및 실습 예제)
 
-Go (Golang) 백엔드 개발 및 소켓/웹 통신 기초 문법을 작성한 실습 디렉토리입니다.
+Go (Golang) 언어의 기본 패키지 구조, 고루틴(Goroutine), 채널(Channel) 및 HTTP 웹 핸들러를 실습하는 모듈입니다.
 
 ---
 
@@ -9,7 +9,7 @@ Go (Golang) 백엔드 개발 및 소켓/웹 통신 기초 문법을 작성한 �
 ```text
 go_practice/
 └── src/
-    └── index.go           # Go 메인 예제 소스 파일
+    └── index.go           # Go 패키지 메인 진입점 소스 파일
 ```
 
-- **[src README 바로가기](./src/README.md)**: src 소스 안내.
+- **[src README 바로가기](./src/README.md)**: 소스 파일 세부 설명.

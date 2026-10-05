@@ -1,60 +1,143 @@
-# 🚀 VTOK-ALL 통합 프로젝트 (VTOK Platform Monorepo)
+# 🚀 VTOK-ALL 통합 시스템 모노레포 (VTOK Monorepo Platform)
 
 > [!IMPORTANT]
-> **🤖 AI Agent 및 개발자 안내 지침 (Notice for AI Agents & Developers)**
-> - 본 저장소는 VTOK 플랫폼의 프론트엔드, 백엔드 API, 블록체인(NFT/Web3) 연동 서비스 및 학습용 예제가 통합된 모노레포(Monorepo)입니다.
-> - **인공지능(AI Agent) 및 개발자는 코드 수정을 직접 수행하는 목적이 아니라면, 코드 전체를 탐색할 필요 없이 본 README와 각 하위 프로젝트/디렉토리의 `README.md` 문서만 참조하여 시스템의 구조 및 역할을 파악하시기 바랍니다.**
+> **🤖 AI Agent 및 개발자를 위한 전용 탐색 지침 (Guidelines for AI Agents & Developers)**
+> - 본 저장소는 VTOK(브이톡) NFT 생태계의 메인 웹, 관리자 백오피스, 스마트 컨트랙트 민팅 API, 마켓플레이스 백엔드 및 다양한 Web3/알고리즘 연습 템플릿이 모여 있는 모노레포(Monorepo)입니다.
+> - **인공지능(AI Agent) 및 개발자는 코드 수정을 직접 수행하는 목적이 아니라면, 소스 코드를 파일별로 분석할 필요 없이 본 README와 각 서브 프로젝트/하위 디렉토리의 `README.md` 문서만 확인하면 전체 아키텍처와 기능을 완전하게 이해할 수 있습니다.**
 
 ---
 
-## 📌 1. 프로젝트 개요 (Overview)
+## 📐 1. 시스템 전체 아키텍처 (System Architecture)
 
-`vtok-all`은 VTOK NFT 서비스 생태계를 구성하는 다양한 컴포넌트들을 통합 관리하는 프로젝트 저장소입니다.  
-사용자용 퍼블리싱 웹, 관리자 프론트엔드, NFT 민팅 백엔드 API, 이더리움/클레이튼 스마트 컨트랙트 연동 모듈 및 관련 개발 템플릿이 포함되어 있습니다.
+VTOK 플랫폼은 프론트엔드, API 서비스, 캐시/DB 인프라, 분산 저장소(IPFS) 및 블록체인 스마트 컨트랙트 간의 유기적인 연동으로 동작합니다.
 
----
+```mermaid
+flowchart TD
+    subgraph Client ["🖥️ Client Layer"]
+        PW["🌐 vtok_publishing_web (React ClientApp)"]
+        AF["📊 vtok_admin_frontend (React Admin)"]
+        TEST_WALLET["⛓️ ethereum-transaction-test"]
+        SPINE["🎮 spine-player-test"]
+    end
 
-## 📂 2. 디렉토리 구조 및 서브 프로젝트 안내
+    subgraph Backend ["⚙️ Backend Layer (.NET 6 / ASP.NET Core)"]
+        WEB_API["vtok_publishing_web (API & SignalR)"]
+        MINT_API["vtok-minting (Minting Engine)"]
+        SANDBOX_API["SandboxClone (Marketplace API)"]
+        MINT_TEST_API["minting-test (Contract Test API)"]
+    end
 
-| 디렉토리 명 | 주요 역할 및 기술 스택 | 하위 README |
-| :--- | :--- | :---: |
-| 🌐 [**vtok_publishing_web**](./vtok_publishing_web) | VTOK 메인 퍼블리싱 웹 (ASP.NET Core + React ClientApp + SignalR + Redis) | [바로가기](./vtok_publishing_web/README.md) |
-| 🖥️ [**vtok_admin_frontend**](./vtok_admin_frontend) | VTOK 관리자 백오피스 웹 (React + Material UI DataGrid) | [바로가기](./vtok_admin_frontend/README.md) |
-| ⛏️ [**vtok-minting**](./vtok-minting) | VTOK 코어 NFT 민팅 & IPFS 메타데이터 관리 API (ASP.NET Core 6 + Nethereum + MySQL) | [바로가기](./vtok-minting/README.md) |
-| 🧪 [**minting-test**](./minting-test) | ERC-721 / ERC-1155 NFT 민팅 테스트 API (ASP.NET Core 6 + Web3) | [바로가기](./minting-test/README.md) |
-| ⛓️ [**ethereum-transaction-test**](./ethereum-transaction-test) | 이더리움 잔액 조회 & ERC-20/721 전송 연동 테스트 (React + Web3/Ethers + MetaMask) | [바로가기](./ethereum-transaction-test/README.md) |
-| 🦊 [**Metamask-Template**](./Metamask-Template) | React용 메타마스크 지갑 연결 및 체인/계정 변경 이벤트 템플릿 | [바로가기](./Metamask-Template/README.md) |
-| 🎮 [**spine-player-test**](./spine-player-test) | Spine 2D 애니메이션 캐릭터 플레이어 웹 렌더링 (React + @esotericsoftware/spine-player) | [바로가기](./spine-player-test/README.md) |
-| 📦 [**SandboxClone**](./SandboxClone) | 더 샌드박스 스타일 NFT 마켓플레이스 백엔드 (ASP.NET Core 6 + EF Core) | [바로가기](./SandboxClone/README.md) |
-| 💻 [**ASPClone**](./ASPClone) | ASP.NET Core Web API 연습 프로젝트 (CRUD 패턴) | [바로가기](./ASPClone/README.md) |
-| 📘 [**CSharpPractice**](./CSharpPractice) | C# 10 / .NET 6 그래프 알고리즘(BFS/DFS) 및 연습 코드 | [바로가기](./CSharpPractice/README.md) |
-| 🐹 [**go_practice**](./go_practice) | Go (Golang) 백엔드 입문 예제 | [바로가기](./go_practice/README.md) |
-| 🐍 [**python_rest_api_practice**](./python_rest_api_practice) | Python Flask 기반 REST API 및 Producer/Consumer 예제 | [바로가기](./python_rest_api_practice/README.md) |
-| 📐 [**Minting.drawio**](./Minting.drawio) | NFT 민팅 시스템 아키텍처 및 순서도 다이어그램 파일 | - |
+    subgraph Infra ["💾 Infrastructure & Storage"]
+        REDIS[("⚡ Redis Cache\n(Mint Count & Realtime State)")]
+        MYSQL[("🗄️ MySQL DB\n(Tokens, Users, Whitelist, Files)")]
+        IPFS["📦 IPFS / Pinata / NFT.Storage\n(NFT Metadata & Assets)"]
+    end
 
----
+    subgraph Blockchain ["⛓️ Blockchain Network"]
+        ETH["이더리움 / 클레이튼 메인넷 & 테스트넷\n(ERC-721 / ERC-1155 Smart Contracts)"]
+    end
 
-## 🛠️ 3. 기술 스택 요약 (Tech Stack Summary)
+    PW -->|REST API & SignalR| WEB_API
+    AF -->|Admin REST API| WEB_API
+    TEST_WALLET -->|Web3 / Metamask Provider| ETH
 
-- **Backend / API**: C# (.NET 6 / ASP.NET Core Web API), Python (Flask), Go (Golang)
-- **Frontend / Client**: React.js, JavaScript (ES6+), HTML5/CSS3, Material-UI (MUI), SignalR Client
-- **Blockchain / Web3**: Nethereum (C# Web3 Library), Ethers.js, Web3.js, MetaMask Wallet API, TrustWallet API
-- **Database & Storage**: MySQL / MariaDB (EF Core), Redis (캐싱 및 실시간 데이터), IPFS (Decentralized NFT Metadata Storage)
-- **Real-time & Animation**: ASP.NET Core SignalR, Spine 2D Web Player
+    WEB_API --> REDIS
+    WEB_API --> MYSQL
 
----
+    MINT_API --> IPFS
+    MINT_API -->|Nethereum Web3 Tx| ETH
+    MINT_API --> MYSQL
 
-## 📑 4. 인수인계 가이드 (Handover Checklist)
-
-새로운 개발자나 관리자가 시스템을 인수인계받을 때 다음 순서로 확인을 권장합니다:
-
-1. **전체 구조 파악**: 각 프로젝트 디렉토리 내의 `README.md` 및 `Minting.drawio` 다이어그램을 확인합니다.
-2. **백엔드 환경**: [.NET 6 SDK](https://dotnet.microsoft.com/)가 설치되어 있어야 하며, MySQL 및 Redis 연결 문자열(`appsettings.json`)을 환경에 맞게 수정합니다.
-3. **프론트엔드 환경**: [Node.js (v16+)](https://nodejs.org/) 설치 후 해당 React 프로젝트 디렉토리에서 `npm install` 및 `npm start`를 실행합니다.
-4. **블록체인 연동**: 이더리움/클레이튼 RPC 엔드포인트 및 스마트 컨트랙트 주소, IPFS API 키 설정을 확인합니다.
+    SANDBOX_API --> MYSQL
+```
 
 ---
 
-## 💡 5. AI Agent 참고 사항
+## 📂 2. 프로젝트 통합 카탈로그 (Project Catalog)
 
-AI Agent(Gemini, Antigravity, ChatGPT, Claude 등)는 코드베이스 수정 및 리팩토링 요청을 수행할 때 **각 서브 프로젝트 디렉토리 내부의 `README.md` 문서**를 우선 읽고 모듈 간 의존성을 파악한 뒤 작업을 진행하십시오.
+본 저장소에 포함된 12개 프로젝트의 상세 사양과 기술 스택, 담당 역할 및 하위 README 링크 목록입니다.
+
+| 프로젝트 명 | 주요 기능 및 역할 | 핵심 기술 스택 | 하위 README 링크 |
+| :--- | :--- | :--- | :---: |
+| 🌐 [**vtok_publishing_web**](./vtok_publishing_web) | VTOK 메인 웹사이트, NFT 퍼블리싱, 실시간 카운트다운 타이머 및 민팅 현황 제공 | C#, ASP.NET Core, React, SignalR, Redis | [프로젝트 README](./vtok_publishing_web/README.md) <br> [ClientApp README](./vtok_publishing_web/ClientApp/README.md) |
+| 📊 [**vtok_admin_frontend**](./vtok_admin_frontend) | VTOK 관리자 전용 대시보드 (카테고리 트리 관리, 파일 업로드/이력 데이터그리드) | React, Material-UI (MUI Pro DataGrid), Axios | [프로젝트 README](./vtok_admin_frontend/README.md) <br> [src README](./vtok_admin_frontend/src/README.md) |
+| ⛏️ [**vtok-minting**](./vtok-minting) | VTOK 메인 NFT 민팅 엔진 (IPFS 메타데이터 업로드 + Nethereum ERC-721 민팅 + DB 저장) | C# (.NET 6), Nethereum, IPFS API, MySQL | [프로젝트 README](./vtok-minting/README.md) <br> [MainApp README](./vtok-minting/MainApplication/README.md) |
+| 🧪 [**minting-test**](./minting-test) | ERC-721 / ERC-1155 스마트 컨트랙트 민팅 및 가스비/트랜잭션 테스트 API | C# (.NET 6), Nethereum Web3, MySQL | [프로젝트 README](./minting-test/README.md) <br> [MintingTest README](./minting-test/MintingTest/README.md) |
+| ⛓️ [**ethereum-transaction-test**](./ethereum-transaction-test) | 이더리움 잔액 조회, ERC-20/721 전송 및 메타마스크/트러스트월렛 연동 클라이언트 | React, Web3.js, Ethers.js, MetaMask API | [프로젝트 README](./ethereum-transaction-test/README.md) <br> [src README](./ethereum-transaction-test/src/README.md) |
+| 🦊 [**Metamask-Template**](./Metamask-Template) | React 서비스용 MetaMask 지갑 연결, 계정/네트워크 이벤트 변경 리스너 템플릿 | React, window.ethereum Provider | [프로젝트 README](./Metamask-Template/README.md) <br> [src README](./Metamask-Template/src/README.md) |
+| 🎮 [**spine-player-test**](./spine-player-test) | Spine 2D 애니메이션 캐릭터 렌더링 및 웹 인터랙션 테스트 | React, @esotericsoftware/spine-player | [프로젝트 README](./spine-player-test/README.md) <br> [src README](./spine-player-test/src/README.md) |
+| 📦 [**SandboxClone**](./SandboxClone) | 더 샌드박스 스타일 마켓플레이스 백엔드 (NFT 그룹, 장바구니, 유저 관리) | C# (.NET 6), EF Core 6, MySQL | [프로젝트 README](./SandboxClone/README.md) <br> [MainApp README](./SandboxClone/MainApplication/README.md) |
+| 💻 [**ASPClone**](./ASPClone) | ASP.NET Core Web API 표준 패턴 실습 프로젝트 (Department, Employee, Pizza CRUD) | C# (.NET 6), ASP.NET Core Web API | [프로젝트 README](./ASPClone/README.md) <br> [ASPPractice README](./ASPClone/ASPPractice/README.md) |
+| 📘 [**CSharpPractice**](./CSharpPractice) | C# 10 / .NET 6 그래프 알고리즘 (BFS, DFS) 및 자료구조 실습 코드 | C# 10, .NET 6 Console | [프로젝트 README](./CSharpPractice/README.md) <br> [CSharpPractice README](./CSharpPractice/CSharpPractice/README.md) |
+| 🐹 [**go_practice**](./go_practice) | Go (Golang) 언어 입문 및 소켓/HTTP 처리 예제 | Go 1.18+, Standard Library | [프로젝트 README](./go_practice/README.md) <br> [src README](./go_practice/src/README.md) |
+| 🐍 [**python_rest_api_practice**](./python_rest_api_practice) | Python Flask 기반 REST API 구축 및 Producer/Consumer 메시징 실습 예제 | Python 3.x / 2.7, Flask, Requests | [프로젝트 README](./python_rest_api_practice/README.md) |
+
+---
+
+## 📋 3. 인수인계 및 개발 환경 구축 가이드 (Setup & Handover Checklist)
+
+### 3.1 필수 전제 조건 (Prerequisites)
+- **.NET SDK**: .NET 6.0 SDK 이상
+- **Node.js**: v16.x 이상 (npm v8.x 이상)
+- **Database**: MySQL 8.0 / MariaDB 10.5 이상
+- **In-Memory Cache**: Redis 6.x 이상
+- **Browser Extension**: MetaMask 지갑 확장 프로그램
+
+### 3.2 빠른 실행 가이드 (Quick Start)
+
+#### 1) 메인 퍼블리싱 웹 구동 (`vtok_publishing_web`)
+```bash
+# 백엔드 및 SignalR 서버 구동
+cd vtok_publishing_web
+dotnet run
+
+# React 프론트엔드 구동 (별도 터미널)
+cd vtok_publishing_web/ClientApp
+npm install
+npm start
+```
+
+#### 2) 관리자 대시보드 구동 (`vtok_admin_frontend`)
+```bash
+cd vtok_admin_frontend
+npm install
+npm start
+```
+
+#### 3) 민팅 백엔드 API 구동 (`vtok-minting`)
+```bash
+cd vtok-minting/MainApplication
+dotnet run
+```
+
+---
+
+## 🛠️ 4. 주요 환경 변수 설정 (`appsettings.json`)
+
+백엔드 프로젝트 실행 전 각 프로젝트의 `appsettings.json`에서 아래 설정을 환경에 맞게 수정해야 합니다:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=vtok_db;Uid=root;Pwd=your_password;"
+  },
+  "Redis": {
+    "ConnectionString": "localhost:6379"
+  },
+  "Ethereum": {
+    "RpcUrl": "https://mainnet.infura.io/v3/YOUR_INFURA_KEY",
+    "PrivateKey": "YOUR_WALLET_PRIVATE_KEY",
+    "ContractAddress": "0xYourERC721ContractAddress"
+  },
+  "IPFS": {
+    "NFTStorageApiKey": "YOUR_NFT_STORAGE_API_KEY"
+  }
+}
+```
+
+---
+
+## 💡 5. AI Agent & 개발자 유의 사항
+
+1. **디렉토리별 독립성**: 각 서브 프로젝트는 독립적인 솔루션/패키지 구조를 가집니다.
+2. **README 참조 우선 규칙**: 코드를 수정하거나 개별 모듈의 사양을 확인할 때, 해당 디렉토리에 위치한 `README.md` 문서를 먼저 참조하십시오.

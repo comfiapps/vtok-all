@@ -1,27 +1,25 @@
-# 📂 VTOK Admin Frontend - `src` 디렉토리 안내
+# 📂 VTOK Admin Frontend - `src` 상세 모듈 구성
 
-`vtok_admin_frontend`의 핵심 리액트 소스 코드가 포함된 디렉토리입니다.
+관리자 백오피스 소스 코드의 컴포넌트별 상세 역할 및 계층 데이터 조작 로직 설명입니다.
 
 ---
 
-## 📄 디렉토리 구성 (Structure Detail)
+## 📄 핵심 구현 및 컴포넌트 분석
 
-- **`api/`**
-  - `request.js`: 서버 REST API와의 통신을 처리하는 Axios Wrapper 모듈.
+### 1. 카테고리 계층 구조 처리 (`CategoryPage.js` & `HierarcialCategory.js`)
+- 카테고리 코드는 N자리 규칙(예: `10`, `1001`, `100101` 등 2자리 단위 파싱 `strings.codeLength`)을 따릅니다.
+- MUI DataGrid Pro의 `grouping` 속성을 활용하여 트리 뷰 구조로 렌더링합니다.
+- **카테고리 삭제 모달 (`Dialog` & `HierarcialCategory`)**: 카테고리를 삭제할 때 하위 아이템을 이관할 대상 카테고리를 선택하거나, 미선택 시 하위 연관 데이터 일괄 삭제 경고 처리(`line`, `reline`).
 
-- **`page/`**
-  - `CategoryPage.js`: 계층형 카테고리(Hierarchical Category) 조회, 생성, 수정 관리 페이지.
-  - `FilePage.js`: 파일 리스트 조회, 업로드, 삭제 및 다운로드 관리 페이지.
-  - `FileHistoryPage.js`: 파일 변경 및 작업 이력 트래킹 데이터그리드 페이지.
+### 2. 파일 관리 및 버전 수정 (`FilePage.js` & `FileUpdateDialog.js`)
+- 파일 등록 시 다중 파라미터(카테고리 코드, 파일명, 버전, 설명 등) 전송.
+- `CustomDataGrid.js`를 이용한 필터링 및 서치바 정규식 검색(`escapeRegExp`).
 
-- **`component/`**
-  - `CustomDataGrid.js`: MUI DataGrid 기반의 공통 테이블 그리드 컴포넌트.
-  - `CategoryCreateDialog.js` / `CategoryModifyDialog.js`: 카테고리 생성 및 수정 모달 대화상자.
-  - `FileUploadDialog.js` / `FileUpdateDialog.js`: 파일 신규 업로드 및 버전 업데이트 대화상자.
-  - `DeleteAlert.js`: 삭제 확인 팝업 경고창.
-  - `DialogLayout.js` / `TitleBar.js` / `SearchBar.js` / `MainAppBar.js`: 어드민 쉘 레이아웃 요소.
+### 3. 변경 이력 모니터링 (`FileHistoryPage.js`)
+- 누가/언제/어떤 파일을 업로드/수정/삭제했는지 시간순 데이터그리드 모니터링.
 
-- **`res/`**
-  - `common.js`: 공통 헬퍼 함수.
-  - `strings.js`: UI 한글/영문 텍스트 상수.
-  - `testData.js`: 개발용 목업(Mock) 데이터.
+---
+
+## 🛠️ 공통 모듈 (`api/`, `res/`)
+- `api/request.js`: HTTP 401/500 에러 처리 및 기본 Header 설정 Axios 인스턴스.
+- `res/common.js`: 정규 표현식 이스케이프 함수 `escapeRegExp(string)`.

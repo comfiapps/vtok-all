@@ -1,42 +1,45 @@
 # 📱 VTOK Publishing Web ClientApp (React Frontend)
 
-`vtok_publishing_web` 프로젝트 내부에 포함된 React 기반의 SPA 프론트엔드입니다.  
-VTOK 서비스 소개, 로드맵, 팀 소개, NFT 미리보기 및 민팅 타임 박스 기능을 제공합니다.
+`vtok_publishing_web` 프로젝트의 React SPA 클라이언트 어플리케이션입니다.  
+VTOK 화이트리스트 신청, 카운트다운 타이머, 3D 캐릭터 하우스 프리뷰, 민팅 박스 및 서비스 로드맵 등 메인 사용자 웹 화면을 담당합니다.
 
 ---
 
-## 📂 디렉토리 구조 (Directory Structure)
+## 🛠️ 프론트엔드 기술 구성
+
+- **Core**: React 17+, React DOM, React Router DOM
+- **UI Framework**: Material-UI (MUI v5), Emotion styled-components
+- **Real-time & Network**: Axios, `@microsoft/signalr` (SignalR Client)
+- **Asset Formats**: WebP, Animated WebP, GIF, SVG, PNG (high-resolution character assets)
+
+---
+
+## 📂 상세 컴포넌트 & 레이어 구조
 
 ```text
-ClientApp/
-├── public/               # HTML 템플릿 및 파비콘 등 정적 파일
-├── src/
-│   ├── api/              # 백엔드 REST API 호출 모듈 (apiRequests.js, request.js)
-│   ├── assets/           # 그래픽 이미지, 애니메이션 WebP/GIF, 아이콘 자원
-│   ├── components/       # 재사용 가능한 UI 컴포넌트
-│   │   ├── ContactSection/   # 문의/연락처 섹션
-│   │   ├── CountDownTimer/   # NFT 민팅 시작 카운트다운 타이머
-│   │   ├── HousePreview/     # 3D/하우스 캐릭터 프리뷰
-│   │   ├── MainAppBar/       # 상단 메인 내비게이션 바
-│   │   ├── MainDrawer/       # 모바일 반응형 드로어 메뉴
-│   │   ├── MainFooter/       # 하단 푸터 컴포넌트
-│   │   └── MintBox/          # NFT 민팅 상태 및 진행 박스
-│   ├── icons/            # SVG 아이콘 컴포넌트 (Logo, Arrow, Hamburger)
-│   ├── layouts/          # 주요 페이지 레이아웃 섹션
-│   │   ├── Main/             # 메인 홈 레이아웃
-│   │   ├── NFT/              # NFT 갤러리 섹션
-│   │   ├── Partner/          # 파트너십 소개 섹션
-│   │   ├── Roadmap/          # 프로젝트 로드맵 섹션
-│   │   ├── Service/          # 주요 서비스 상세 및 페이징 탭
-│   │   └── Team/             # 팀원 소개 섹션
-│   └── res/              # 공통 테마, 스트링 자원, 스크롤러 및 유티리티
-└── package.json
+src/
+├── api/
+│   ├── apiRequests.js      # REST API 호출 함수 모듈 (/api/time, /api/count, /api/approval 등)
+│   └── request.js          # Axios 인스턴스 및 인터셉터
+├── assets/                 # 캐릭터, 펫, 배경 애니메이션 WebP/GIF/PNG 및 SVG 아이콘 파일
+├── components/
+│   ├── ContactSection/     # 공식 디스코드, 트위터, 문의 링크 섹션
+│   ├── CountDownTimer/     # 민팅 라운드 시작 카운트다운 타이머
+│   ├── HousePreview/       # 하우스/아바타 캐릭터 3D isometric 인터랙티브 프리뷰
+│   ├── MainAppBar/         # 상단 헤더 메뉴 바 및 지갑 연결 버튼
+│   ├── MainDrawer/         # 모바일 화면 드로어 내비게이션
+│   ├── MainFooter/         # 푸터 저작권 및 웹사이트 정보
+│   └── MintBox/            # 실시간 민팅 진행 상태 표시 및 참여 버튼
+├── icons/                  # SVG 로고, 화살표, 햄버거 메뉴 컴포넌트
+├── layouts/
+│   ├── Main/               # 메인 랜딩 히어로 섹션
+│   ├── NFT/                # VTOK 컬렉션 NFT 갤러리 컴포넌트
+│   ├── Partner/            # 파트너사 로고 및 카러셀
+│   ├── Roadmap/            # 타임라인 형태의 로드맵
+│   ├── Service/            # 탭 방식의 서비스 소개 (Pet, Story, Feature)
+│   └── Team/               # 프로필 카드 형태의 팀원 소개
+└── res/
+    ├── strings.js          # 공통 한글/영문 텍스트 상수
+    ├── theme.js            # MUI 커스텀 컬러 팰렛 및 다크/라이트 테마
+    └── windowSize.js       # 반응형 브레이크포인트 리스너
 ```
-
----
-
-## 🔧 주요 설정 및 스크립트
-
-- **설치**: `npm install`
-- **개발 서버 실행**: `npm start`
-- **빌드**: `npm run build`

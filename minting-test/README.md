@@ -12,18 +12,5 @@
 
 ---
 
-## 📂 디렉토리 구조 (Directory Structure)
-
-```text
-minting-test/
-└── MintingTest/           # 테스트 백엔드 Web API 프로젝트
-    ├── Context/           # ApplicationDbContext
-    ├── ContractFunctions/ # ERC-721 및 ERC-1155 스마트 컨트랙트 ABI 매핑 클래스
-    ├── Controllers/       # EthereumController, MintController
-    ├── Migrations/        # EF Core DB 마이그레이션 이력
-    ├── Models/            # Whitelist 엔티티
-    ├── Repositories/      # WhitelistRepository
-    └── Services/          # EthereumService, WhitelistService
-```
-
-- **[MintingTest README 바로가기](./MintingTest/README.md)**: Nethereum ABI 테스트 함수 안내.
+## 📂 하위 README 링크
+- **[MintingTest README 바로가기](./MintingTest/README.md)**: Nethereum ABI 테스트 함수 및 C# 코드 상세 명세.

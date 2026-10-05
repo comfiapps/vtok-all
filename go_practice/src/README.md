@@ -1,3 +1,16 @@
-# 📂 go_practice - `src` 상세 설명
+# 📂 go_practice - `src` Go 코드 명세
 
-- **`index.go`**: `package main` 및 `func main()`을 포함하며, 표준 출력(`fmt.Println`) 및 기본 데이터 타입 조작 예제.
+### `index.go`
+```go
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Go Language Practice Module Initialized.")
+}
+```
+- Go 컴파일 가이드:
+  ```bash
+  go run src/index.go
+  ```

@@ -4,7 +4,7 @@
 
 ---
 
-## 🛠️ 기술 스택 (Tech Stack)
+## 🛠️ 기술 스택 및 연동 라이브러리 (Tech Stack)
 
 - **Frontend**: React.js 17+
 - **Blockchain Libraries**: `ethers` v5 (`ethers.providers.Web3Provider`), `web3` v1.x
@@ -12,19 +12,5 @@
 
 ---
 
-## 📂 디렉토리 및 컴포넌트 구조
-
-```text
-ethereum-transaction-test/
-├── public/                # HTML 템플릿 (index.html)
-├── src/                   # React 소스 디렉토리 (상세 설명은 src/README.md)
-│   ├── abi/               # 표준 컨트랙트 ABI JSON 파일 (erc20ABI.json)
-│   ├── Component/         # Tabs, TopBar UI
-│   ├── Constant/          # 이더리움 체인 정보 (ethereum.js)
-│   ├── Icon/              # MetamaskIcon, TrustWalletIcon SVG
-│   ├── Metamask/          # Balance, ERC20, ERC721, Transaction, Transfer, Info
-│   └── TrustWallet/       # TrustWallet 연동 모듈
-└── README.md
-```
-
-- **[src README 바로가기](./src/README.md)**: 소스 컴포넌트 코드 설명.
+## 📂 하위 README 링크
+- **[src README 바로가기](./src/README.md)**: 소스 컴포넌트 코드 및 Ethers.js 호출 코드 설명.

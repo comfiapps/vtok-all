@@ -1,5 +1,49 @@
-# 📂 CSharpPractice - 알고리즘 모듈 명세
+# 📂 CSharpPractice - 알고리즘 C# 소스 코드 명세
 
-- **`BFS.cs`**: `Queue<int>` 객체를 활용하여 인접 행렬/인접 리스트로 표현된 그래프의 최단 경로 및 너비 우선 순회 탐색.
-- **`DFS.cs`**: 재귀 함수 호출(Recursion)을 통한 깊이 우선 순회 탐색.
-- **`AlgorithmPractice.cs`**: 백준/프로그래머스 문제 풀이용 테스트 구현체.
+### 1. `BFS.cs` (너비 우선 탐색)
+```csharp
+public class BFS
+{
+    public void Search(int startNode, List<int>[] adj, bool[] visited)
+    {
+        Queue<int> q = new Queue<int>();
+        q.Enqueue(startNode);
+        visited[startNode] = true;
+
+        while (q.Count > 0)
+        {
+            int curr = q.Dequeue();
+            Console.WriteLine($"Visited Node: {curr}");
+
+            foreach (int next in adj[curr])
+            {
+                if (!visited[next])
+                {
+                    visited[next] = true;
+                    q.Enqueue(next);
+                }
+            }
+        }
+    }
+}
+```
+
+### 2. `DFS.cs` (깊이 우선 탐색 - 재귀)
+```csharp
+public class DFS
+{
+    public void Search(int curr, List<int>[] adj, bool[] visited)
+    {
+        visited[curr] = true;
+        Console.WriteLine($"DFS Visited Node: {curr}");
+
+        foreach (int next in adj[curr])
+        {
+            if (!visited[next])
+            {
+                Search(next, adj, visited);
+            }
+        }
+    }
+}
+```

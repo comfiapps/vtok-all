@@ -1,23 +1,47 @@
 # 📂 VTOK Minting - `MainApplication` 상세 클래스 및 Web3 유틸리티 명세
 
-`vtok-minting` 프로젝트의 Web3 라이브러리 및 Nethereum DTO 클래스 구현 세부사항입니다.
+`vtok-minting` 프로젝트의 Web3 라이브러리, IPFS 연동 모듈 및 Nethereum DTO 클래스 구현 세부사항입니다.
 
 ---
 
-## 🛠️ Web3 & Solidity ABI 매핑 클래스 (`Utils/`)
+## 🛠️ 1. Web3 & IPFS 유틸리티 (`Utils/`)
 
-### 1. `Web3Functions.cs`
-- **`IsValidAddress(string address)`**:
-  - `Regex("^(0x){1}[0-9a-fA-F]{40}$")` 및 Nethereum `AddressUtil().IsChecksumAddress(address)`를 활용한 지갑 주소 정규식 검증.
-- **`GetERC721ContractOwner(string contractAddress)`**:
-  - Nethereum QueryHandler `ERC721ContractOwnerFunction` 호출 ➔ 컨트랙트 소유자 주소 반환.
-- **`GetERC721OwnerOf(string contractAddress, int tokenId)`**:
-  - Nethereum QueryHandler `ERC721OwnerOfFunction` (`TokenId = tokenId`) 호출 ➔ 온체인 NFT 소유자 주소 반환.
-- **`MintERC721(string contract, string url)`**:
-  - Nethereum TransactionHandler `ERC721MintFunction` (`TokenURI = url`) ➔ 온체인 트랜잭션 전송 및 트랜잭션 영수증(`TransactionReceipt`) 반환 ➔ `DecodeAllEvents<ERC721MintEventDto>()`를 통해 발급된 `TokenId` 디코딩 추출.
+### 1.1 `Utils/IPFSFunction.cs`
+```csharp
+public async Task<string> UploadToNFTStorage(string json)
+{
+    var httpClient = new HttpClient();
+    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+    httpClient.DefaultRequestHeaders.Authorization = 
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.ipfsApiKey);
+    
+    var content = new StringContent(json, Encoding.UTF8, "application/json");
+    var response = await httpClient.PostAsync(Constants.ipfsAPIURL, content);
+    var result = await response.Content.ReadAsAsync<IPFSData>();
+    return result.value.cid;
+}
+```
+- `nft.storage` HTTP API (`https://api.nft.storage/upload`)로 JSON 메타데이터를 업로드하고 CID(Content Identifier) 문자열 추출.
 
-### 2. Nethereum ABI DTOs
-- **`ERC721MintFunction.cs`**:
-  - `[Function("mint")] public class ERC721MintFunction : FunctionMessage { [Parameter("string", "tokenURI", 1)] public string TokenURI { get; set; } }`
-- **`ERC721MintEventDto.cs`**:
-  - `[Event("Transfer")] public class ERC721MintEventDto : IEventDTO { [Parameter("address", "_from", 1, true)] public string From { get; set; } [Parameter("address", "_to", 2, true)] public string To { get; set; } [Parameter("uint256", "_tokenId", 3, true)] public BigInteger TokenId { get; set; } }`
+### 1.2 `Utils/Web3Functions.cs`
+- `IsValidAddress(string address)`: `Regex("^(0x){1}[0-9a-fA-F]{40}$")` 및 Nethereum `AddressUtil().IsChecksumAddress(address)` 검증.
+- `MintERC721(string contract, string url)`:
+  ```csharp
+  var account = new Account(Constants.privateKey, Constants.chain);
+  var web3 = new Web3(account, Constants.endpoint);
+  var transferHandler = web3.Eth.GetContractTransactionHandler<ERC721MintFunction>();
+  var transfer = new ERC721MintFunction() { TokenURI = url };
+  var transactionReceipt = await transferHandler.SendRequestAndWaitForReceiptAsync(contract, transfer);
+  var transferEventOutput = transactionReceipt.DecodeAllEvents<ERC721MintEventDto>();
+  return transferEventOutput[0].Event.TokenId;
+  ```
+
+---
+
+## ⚙️ 2. 하드코딩 환경 변수 (`Context/Constants.cs`)
+
+- **Rinkeby RPC Endpoint**: `https://rinkeby.infura.io/v3/1345b6747e0d4aa0ac47166f5128a4d6`
+- **Chain**: `Chain.Rinkeby`
+- **Owner Public Key**: `0x0F623575D3722d89126435b8D33363F1a8589252`
+- **Owner Private Key**: `c7eb5dc3d0a2f4d440676f8fa4452dc247722e5e661474b73d24a0103c29421c`
+- **IPFS API URL**: `https://api.nft.storage/upload`

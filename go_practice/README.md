@@ -4,12 +4,5 @@ Go (Golang) 언어의 기본 패키지 구조, 고루틴(Goroutine), 채널(Chan
 
 ---
 
-## 📂 디렉토리 구조 (Directory Structure)
-
-```text
-go_practice/
-└── src/
-    └── index.go           # Go 패키지 메인 진입점 소스 파일
-```
-
-- **[src README 바로가기](./src/README.md)**: 소스 파일 세부 설명.
+## 📂 하위 README 링크
+- **[src README 바로가기](./src/README.md)**: Go 소스 파일 세부 설명.

@@ -1,9 +1,40 @@
-# 📂 Metamask-Template - `src` 소스 코드 설명
+# 📂 Metamask-Template - `src` 상세 코드 명세
 
-- **`Page/Connect.js`**
-  - `window.ethereum.request({ method: 'eth_requestAccounts' })` 호출.
-  - 리턴된 지갑 주소 배열(`accounts[0]`)을 React `state`에 저장하고 화면에 렌더링.
+### 1. `Page/Connect.js` (지갑 연결)
+```js
+const connectWallet = async () => {
+    if (window.ethereum) {
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            setAccount(accounts[0]);
+        } catch (error) {
+            console.error("User rejected the connection request:", error);
+        }
+    } else {
+        alert("MetaMask is not installed!");
+    }
+};
+```
 
-- **`Page/Change.js`**
-  - `useEffect` 내에서 `window.ethereum.on('accountsChanged', (accounts) => ...)` 리스너 수신.
-  - `window.ethereum.on('chainChanged', (chainId) => ...)` 리스너를 통해 네트워크 변경 시 자동 새로고침 또는 상태 업데이트.
+### 2. `Page/Change.js` (이벤트 리스너)
+```js
+useEffect(() => {
+    if (window.ethereum) {
+        const handleAccountsChanged = (accounts) => {
+            if (accounts.length > 0) setAccount(accounts[0]);
+            else setAccount(null);
+        };
+        const handleChainChanged = (chainId) => {
+            window.location.reload();
+        };
+
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', handleChainChanged);
+
+        return () => {
+            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+            window.ethereum.removeListener('chainChanged', handleChainChanged);
+        };
+    }
+}, []);
+```

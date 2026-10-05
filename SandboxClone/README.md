@@ -32,20 +32,5 @@
 
 ---
 
-## 🔌 API 컨트롤러 엔드포인트 명세
-
-- **`NFTGroupController`**:
-  - `GET /api/NFTGroup`: NFT 그룹 카탈로그 목록 조회
-  - `POST /api/NFTGroup`: 신규 그룹 등록
-- **`NFTController`**:
-  - `GET /api/NFT/{id}`: 특정 토큰 메타데이터 및 판매 상태 조회
-  - `POST /api/NFT`: 신규 NFT 등록
-- **`CartController`**:
-  - `GET /api/Cart/{userId}`: 유저 장바구니 목록 조회
-  - `POST /api/Cart`: 장바구니 담기 (`CartOwner`, `Group`, `Quantity`)
-  - `DELETE /api/Cart/{itemId}`: 장바구니 항목 삭제
-- **`UserController`**:
-  - `GET /api/User/{userId}`: 유저 프로필 조회
-  - `POST /api/User`: 유저 회원가입
-
-- **[MainApplication README 바로가기](./MainApplication/README.md)**: 소스 엔티티 상세 설명.
+## 📂 하위 README 링크
+- **[MainApplication README 바로가기](./MainApplication/README.md)**: 컨트롤러 및 서비스 명세.

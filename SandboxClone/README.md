@@ -4,33 +4,64 @@
 
 ---
 
-## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
+## 📐 1. 모듈 내부 상세 아키텍처 (Detailed Module Architecture)
 
 ```mermaid
-flowchart LR
-    subgraph Controllers ["Controllers Layer"]
-        CART_C["CartController"]
-        NFTG_C["NFTGroupController"]
-        NFT_C["NFTController"]
-        USER_C["UserController"]
+flowchart TD
+    subgraph Client ["🖥️ HTTP Client Requests"]
+        C_REQ["Cart API Requests\n(GET/POST/DELETE /api/Cart)"]
+        G_REQ["NFTGroup API Requests\n(GET/POST /api/NFTGroup)"]
+        N_REQ["NFT API Requests\n(GET/POST /api/NFT)"]
+        U_REQ["User API Requests\n(GET/POST /api/User)"]
     end
 
-    subgraph Services ["Business Services"]
-        CART_S["CartService"]
-        NFTG_S["NFTGroupService"]
-        NFT_S["NFTService"]
-        USER_S["UserService"]
+    subgraph Controller ["⚙️ Controller Layer (.NET Core)"]
+        CART_C["🛒 CartController\n(Cart Item Operations)"]
+        NFTG_C["📦 NFTGroupController\n(Collection Management)"]
+        NFT_C["🎨 NFTController\n(Voxel Item Operations)"]
+        USER_C["👤 UserController\n(Account Profile)"]
     end
 
-    subgraph Data ["EF Core Layer"]
-        DBC["ApplicationDbContext"]
-        MYSQL[("MySQL Database
-- User, NFTGroup, NFT, CartItem")]
+    subgraph Business ["🧠 Service & Business Logic Layer"]
+        CART_S["CartService\n- AddToCart, RemoveFromCart\n- Quantity Calculation"]
+        NFTG_S["NFTGroupService\n- Create Group, List Collections"]
+        NFT_S["NFTService\n- Token Price & OnSale Status"]
+        USER_S["UserService\n- Account Registration & Profile"]
     end
 
-    Controllers --> Services
-    Services --> DBC
-    DBC --> MYSQL
+    subgraph Data ["🗄️ ORM & Database Layer"]
+        DBC["⚡ ApplicationDbContext (EF Core)\n- Change Tracker & Entity State"]
+        
+        subgraph Entities ["Entities & Schema"]
+            U_TBL[("User Table\n- UserId (PK)\n- Name, Email")]
+            G_TBL[("NFTGroup Table\n- GroupId (PK)\n- Creator FK -> User")]
+            N_TBL[("NFT Table\n- TokenId (PK)\n- Group FK, Owner FK\n- Price, OnSale")]
+            C_TBL[("CartItem Table\n- CartOwner (PK1)\n- Group (PK2)\n- Quantity")]
+        end
+    end
+
+    C_REQ --> CART_C
+    G_REQ --> NFTG_C
+    N_REQ --> NFT_C
+    U_REQ --> USER_C
+
+    CART_C --> CART_S
+    NFTG_C --> NFTG_S
+    NFT_C --> NFT_S
+    USER_C --> USER_S
+
+    CART_S --> DBC
+    NFTG_S --> DBC
+    NFT_S --> DBC
+    USER_S --> DBC
+
+    DBC --> U_TBL
+    DBC --> G_TBL
+    DBC --> N_TBL
+    DBC --> C_TBL
+    G_TBL -->|1:N FK| U_TBL
+    N_TBL -->|1:N FK| G_TBL
+    N_TBL -->|1:N FK| U_TBL
 ```
 
 ---

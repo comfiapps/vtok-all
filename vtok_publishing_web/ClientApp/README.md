@@ -89,12 +89,12 @@ flowchart TD
     EXEC_CAPTCHA --> CALL_SITIN[mintAPI 호출 ➔ POST /api/sitin\n서버 측 자격/화이트리스트 검증]
     
     CALL_SITIN --> CHECK_SITIN{서버 검증 성공?}
-    CHECK_SITIN -->|실패/한도초과| SHOW_ERR[에러 알림 출력 및 버튼 복구]
-    CHECK_SITIN -->|성공 (To/Gas 획득)| SEND_TX[klay_sendTransaction 요청\nKaikas 지갑 트랜잭션 서명 팝업]
+    CHECK_SITIN -->|실패 또는 한도초과| SHOW_ERR[에러 알림 출력 및 버튼 복구]
+    CHECK_SITIN -->|성공 To 및 Gas 획득| SEND_TX[klay_sendTransaction 요청\nKaikas 지갑 트랜잭션 서명 팝업]
 
     SEND_TX --> USER_APPROVE{사용자 승인?}
     USER_APPROVE -->|거부| CANCEL_MINT[민팅 취소]
-    USER_APPROVE -->|승인 (Tx_id 획득)| CALL_APPROVE[approvalAPI 호출\nPOST /api/approval\n{ Addr, Tx_id, Count, Round }]
+    USER_APPROVE -->|승인 Tx_id 획득| CALL_APPROVE[approvalAPI 호출\nPOST /api/approval\nAddr, Tx_id, Count, Round]
 
     CALL_APPROVE --> DONE([🎉 민팅 완료 & UI 최신화])
 ```
@@ -202,3 +202,24 @@ sequenceDiagram
 - **`theme.js`**: MUI v5 커스텀 테마 (`primary: #007FFF`, 타이포그래피, 브레이크포인트).
 - **`windowSize.js`**: 브라우저 창 크기 실시간 감지 훅 (`useWindowDimensions`).
 - **`scroller.js`**: 휠 및 터치 제스처를 감지하여 부드러운 섹션 전환을 제공하는 스크롤 엔진.
+
+---
+
+## 🔬 5. 심층 분석 구현 파라미터 및 상수 명세 (Implementation Constants & Specs)
+
+소스 코드 정밀 분석을 통해 도출된 핵심 파라미터 및 비즈니스 연산 공식입니다:
+
+* **Klaytn PEB ➔ KLAY 잔액 환산 공식**:
+  $$\text{balance (KLAY)} = \frac{\text{result.result (PEB)}}{10^{18}}$$
+* **온체인 가스비 & 결제 파라미터 (`transactionParameters`)**:
+  - `gas`: `21000` (고정 가스 리밋)
+  - `value`: `100000000000000` peb ($10^{14}$ peb = 0.0001 KLAY)
+  - `to`: `response.to` (백엔드 `transactionModel`에서 반환하는 수납 주소 `0xc095f858dd6a0d87cb9755e11caba1ec6305a136`)
+* **Google reCAPTCHA v2/v3 Invisible**:
+  - `sitekey`: `6LfT1H8eAAAAAMydoaaYRj53J7-BiN3eCF8MBtm1`
+  - `size`: `invisible`
+* **3D 하우스 뷰포트 반응형 스케일 공식 (`Home.js`)**:
+  $$\text{cal} = \left(\frac{\text{divWidth} \times 0.7}{664}\right) - 0.2$$
+  - `houseOriginWidth`: `664px`
+  - `minScale`: `0.7`
+  - 모바일 브레이크포인트 도달 시: $\text{scale} = \frac{\text{width} - 30}{664}$

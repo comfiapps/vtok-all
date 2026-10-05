@@ -27,7 +27,9 @@
 
 ## 📐 1. 워크스페이스 구조 및 아키텍처 맵
 
-전체 저장소는 **5가지 목적별 도메인 그룹**으로 분류되어 있습니다.
+전체 저장소는 **5가지 목적별 도메인 그룹**으로 분류되어 있으며, 코어 서비스 간 통합 아키텍처 토폴로지를 갖추고 있습니다.
+
+### 1.1 도메인 그룹 분류도
 
 ```mermaid
 flowchart LR
@@ -63,6 +65,87 @@ flowchart LR
         PYTHON["🐍 python_rest_api_practice\n(Python requests API 부하 테스트)"]
     end
 ```
+
+---
+
+### 1.2 VTOK 코어 서비스 통합 아키텍처 토폴로지 (Core Integrated Topology)
+
+사용자 대면 민팅 포털([`vtok_publishing_web`](./vtok_publishing_web) + [`ClientApp`](./vtok_publishing_web/ClientApp))과 운영자 백오피스([`vtok_admin_frontend`](./vtok_admin_frontend))의 상호 연동 및 인프라 구조도입니다.
+
+```mermaid
+flowchart TB
+    subgraph ClientTier ["🖥️ 클라이언트 계층"]
+        direction LR
+        USER["👤 일반 사용자 브라우저\n- ClientApp React 17 SPA\n- Kaikas Wallet window.klaytn\n- Google reCAPTCHA v2/v3"]
+        ADMIN["👨‍💼 관리자 브라우저\n- vtok_admin_frontend React 17\n- LOMBUS Backoffice DataGrid"]
+    end
+
+    subgraph UserPortal ["🌐 퍼블리싱 & 민팅 포털 (vtok_publishing_web:5000)"]
+        direction TB
+        SPA_HOST["🖥️ SPA 호스트 미들웨어\nUseSpa / UseSpaStaticFiles"]
+        CTRL["🎮 MittingController\nREST API 엔드포인트"]
+        SVC["🧠 MittingService\n라운드/수량/화이트리스트 검증"]
+        HUB["💬 ChatHub (SignalR WebSockets)\n/chatHub 브로드캐스트"]
+        TIMER["🔄 TimedHostedService\n5초 백그라운드 Redis 폴링"]
+        REPO_SQL["🗄️ MittingRepository\nApiDataContext EF Core"]
+        REPO_REDIS["⚡ RedisRepository\nStackExchange.Redis"]
+    end
+
+    subgraph AdminPortal ["📊 백오피스 관리자 웹 (vtok_admin_frontend & Proxy)"]
+        direction TB
+        ADMIN_PAGES["📄 CategoryPage / FilePage / FileHistoryPage\n2자리 Prefix 계층 트리 파서"]
+        ADMIN_PROXY["🔀 setupProxy.js (http-proxy-middleware)\nProxy /api -> localhost:8080"]
+        ADMIN_API[("🛠️ Admin API Backend (Port 8080)\n/api/get/category, /del/file 등")]
+    end
+
+    subgraph StorageTier ["💾 영속 저장소 및 실시간 캐시"]
+        direction LR
+        REDIS[("⚡ In-Memory Redis (Port 6379)\n- Times 라운드 일정 JSON\n- Mitting{round} 실시간 카운터")]
+        MYSQL[("🗄️ MySQL Database (Port 3306)\n- SitinAddr 사전 대기열\n- MittingAddr 승인 트랜잭션")]
+    end
+
+    subgraph BlockchainTier ["⛓️ Klaytn 블록체인 네트워크"]
+        KLAYTN["🌐 Klaytn 온체인 컨트랙트\n- 수납 주소: 0xc095f858dd6a0d87cb9755e11caba1ec6305a136\n- 트랜잭션 서명 및 PEB 송금"]
+    end
+
+    USER -->|방문 및 번들 수신| SPA_HOST
+    USER -->|사전신청 및 승인 요청| CTRL
+    USER <-->|실시간 수량 동기화| HUB
+    USER -->|온체인 트랜잭션 전송| KLAYTN
+
+    CTRL --> SVC
+    SVC --> REPO_SQL
+    SVC --> REPO_REDIS
+    TIMER --> REPO_REDIS
+    TIMER --> HUB
+    CTRL --> HUB
+    REPO_REDIS <--> REDIS
+    REPO_SQL <--> MYSQL
+
+    ADMIN --> ADMIN_PAGES
+    ADMIN_PAGES --> ADMIN_PROXY
+    ADMIN_PROXY --> ADMIN_API
+```
+
+---
+
+### 1.3 소스 코드 정밀 분석 핵심 사양 (Deep-Dive Implementation Specs)
+
+1. **`vtok_publishing_web` 백엔드 핵심 비즈니스 로직**:
+   - **4대 비즈니스 예외 코드 규격화**:
+     - `type: 6`: `"민팅 시간이 아닙니다."` (`time == null`)
+     - `type: 1`: `"민팅 수량이 모두 소진되었습니다"` (`cnt >= time.Count`)
+     - `type: 3`: `"화이트리스트 대상자가 아닙니다"` (`time.Group == "prive"`일 때 DB 화이트리스트 미조회)
+     - `type: 4`: `"내게 남은 수량보다 더 많이 민팅할 수 없습니다"` (`(Approvalcount - Resultcount) - Count < 1`)
+   - **Redis 인덱싱 & 백그라운드 감시**: `Times` JSON 스케줄을 Unix Timestamp로 인덱싱하며, `TimedHostedService`가 5초(`TimeSpan.FromSeconds(5)`)마다 상태를 감시하여 `"End"` 발생 시 `ChatHub` 브로드캐스트 후 타이머 `Dispose()`.
+2. **`ClientApp` 프론트엔드 Web3 & 수식 구현체**:
+   - **Klaytn 잔액 변환**: `klay_getBalance`의 PEB 단위를 `result / 10^18`로 나누어 KLAY 환산.
+   - **3-Phase 민팅 트랜잭션**: `gas: 21000`, `value: 100000000000000` peb (0.0001 KLAY), 수납 주소 `0xc095f858dd6a0d87cb9755e11caba1ec6305a136`, Google Invisible reCAPTCHA (`6LfT1H8eAAAAAMydoaaYRj53J7-BiN3eCF8MBtm1`).
+   - **3D 하우스 동적 스케일링**: $\text{cal} = (\text{divWidth} \times 0.7 / 664) - 0.2$ 수식을 통한 브라우저 뷰포트 반응형 렌더링.
+3. **`vtok_admin_frontend` 백오피스**:
+   - **LOMBUS 2자리 계층형 트리 알고리즘**: `strings.codeLength = 2`를 기준으로 Depth 1(길이 2), Depth 2(길이 4) Breadcrumb 추출.
+   - **카테고리 삭제 시 하위 항목 재배치**: `line: alert`(삭제 대상), `reline: move`(이관 대상) 파라미터 전달.
+   - **리버스 프록시**: `setupProxy.js`를 통해 로컬 8080 포트 Admin API 서버로 `/api` 요청 포워딩.
 
 ---
 

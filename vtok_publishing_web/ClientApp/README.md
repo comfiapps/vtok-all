@@ -1,45 +1,39 @@
-# 📱 VTOK Publishing Web ClientApp (React Frontend)
+# 📱 VTOK Publishing Web ClientApp (React Frontend 명세서)
 
-`vtok_publishing_web` 프로젝트의 React SPA 클라이언트 어플리케이션입니다.  
-VTOK 화이트리스트 신청, 카운트다운 타이머, 3D 캐릭터 하우스 프리뷰, 민팅 박스 및 서비스 로드맵 등 메인 사용자 웹 화면을 담당합니다.
-
----
-
-## 🛠️ 프론트엔드 기술 구성
-
-- **Core**: React 17+, React DOM, React Router DOM
-- **UI Framework**: Material-UI (MUI v5), Emotion styled-components
-- **Real-time & Network**: Axios, `@microsoft/signalr` (SignalR Client)
-- **Asset Formats**: WebP, Animated WebP, GIF, SVG, PNG (high-resolution character assets)
+`vtok_publishing_web` 백엔드와 연동되는 React Single Page Application(SPA) 클라이언트 프로젝트입니다.
 
 ---
 
-## 📂 상세 컴포넌트 & 레이어 구조
+## 📄 파일 및 컴포넌트 단위 명세 (File-by-File Component Spec)
 
-```text
-src/
-├── api/
-│   ├── apiRequests.js      # REST API 호출 함수 모듈 (/api/time, /api/count, /api/approval 등)
-│   └── request.js          # Axios 인스턴스 및 인터셉터
-├── assets/                 # 캐릭터, 펫, 배경 애니메이션 WebP/GIF/PNG 및 SVG 아이콘 파일
-├── components/
-│   ├── ContactSection/     # 공식 디스코드, 트위터, 문의 링크 섹션
-│   ├── CountDownTimer/     # 민팅 라운드 시작 카운트다운 타이머
-│   ├── HousePreview/       # 하우스/아바타 캐릭터 3D isometric 인터랙티브 프리뷰
-│   ├── MainAppBar/         # 상단 헤더 메뉴 바 및 지갑 연결 버튼
-│   ├── MainDrawer/         # 모바일 화면 드로어 내비게이션
-│   ├── MainFooter/         # 푸터 저작권 및 웹사이트 정보
-│   └── MintBox/            # 실시간 민팅 진행 상태 표시 및 참여 버튼
-├── icons/                  # SVG 로고, 화살표, 햄버거 메뉴 컴포넌트
-├── layouts/
-│   ├── Main/               # 메인 랜딩 히어로 섹션
-│   ├── NFT/                # VTOK 컬렉션 NFT 갤러리 컴포넌트
-│   ├── Partner/            # 파트너사 로고 및 카러셀
-│   ├── Roadmap/            # 타임라인 형태의 로드맵
-│   ├── Service/            # 탭 방식의 서비스 소개 (Pet, Story, Feature)
-│   └── Team/               # 프로필 카드 형태의 팀원 소개
-└── res/
-    ├── strings.js          # 공통 한글/영문 텍스트 상수
-    ├── theme.js            # MUI 커스텀 컬러 팰렛 및 다크/라이트 테마
-    └── windowSize.js       # 반응형 브레이크포인트 리스너
-```
+### 1. `src/api/` (API 호출 Layer)
+- **`request.js`**: Axios 인스턴스 (`baseURL`, `timeout: 10000`, `Content-Type: application/json`).
+- **`apiRequests.js`**:
+  - `getTime()`: `GET /api/time`
+  - `getMintingCount(round)`: `GET /api/count/${round}`
+  - `postApproval(id, dto)`: `POST /api/approval/${id}`
+  - `postSitin(id, dto)`: `POST /api/sitin/${id}`
+
+### 2. `src/components/` (주요 UI 컴포넌트)
+- **`CountDownTimer/index.js`**:
+  - `props`: `targetTime` (밀리초)
+  - `state`: `days`, `hours`, `minutes`, `seconds`
+  - 1초 간격 인터벌로 민팅 시작 시각까지의 남은 시간 동적 계산 및 UI 렌더링.
+- **`MintBox/index.js`**:
+  - `props`: `round`, `totalCount`, `currentCount`
+  - SignalR Hub(`/chatHub`)와 연결하여 서버에서 발송하는 `Receive("Count", cnt)` 이벤트를 리스닝하고 ProgressBar 및 남은 수량을 실시간 갱신.
+- **`HousePreview/index.js`**:
+  - Isometric 캐릭터 및 펫 그래픽 애니메이션 WebP/GIF 렌더링.
+- **`ContactSection/index.js`**:
+  - 디스코드, 트위터, 미디엄, 텔레그램 공식 소셜 채널 아웃링크 버튼.
+- **`MainAppBar/index.js` & `MainDrawer/index.js`**:
+  - 메인 상단 내비게이션 및 모바일 대응 드로어 메뉴.
+
+### 3. `src/layouts/` (페이지 섹션 레이아웃)
+- **`Main/Home.js`**: 히어로 섹션, 메인 타이트 캐치프레이즈 및 민팅 참여 CTA 버튼.
+- **`NFT/index.js`**: VTOK NFT 아트워크 프리뷰 갤러리 카드 뷰.
+- **`Roadmap/index.js`**: Phase 1 ~ Phase 4 타임라인 카드 UI.
+- **`Service/`**:
+  - `ServiceTabs.js`: Story, Pet, Feature 탭 전환 제어.
+  - `Pet.js`, `Story.js`: 서비스 상세 설명 및 GIF 그래픽 자원 바인딩.
+- **`Team/index.js`**: 팀원 14명의 프로필 카드(`team_member_01~14.png`) 및 역할 렌더링.

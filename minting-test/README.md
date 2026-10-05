@@ -1,14 +1,14 @@
-# 🧪 Minting Test (NFT 민팅 & 스마트 컨트랙트 테스트 API)
+# 🧪 Minting Test (NFT 민팅 & 스마트 컨트랙트 테스트 API 명세서)
 
-이더리움 및 Klaytn 호환 블록체인에서 ERC-721(NFT) 및 ERC-1155(Multi-Token) 토큰 전송과 민팅 기능 및 가스비 한도를 테스트하기 위한 백엔드 Web API입니다.
+이더리움 및 EVM 계열 스마트 컨트랙트(ERC-721 및 ERC-1155)의 민팅, 전송(Transfer) 및 가스비 한도 검증을 위한 테스트용 백엔드 API 서비스입니다.
 
 ---
 
-## 🛠️ 기술 스택 (Tech Stack)
+## 🛠️ 주요 테스트 기능
 
-- **Framework**: C# (.NET 6.0 / ASP.NET Core Web API)
-- **Web3 Library**: Nethereum (Ethereum / EVM C# SDK)
-- **Database**: MySQL (EF Core 6)
+1. Nethereum을 이용한 ERC-721 `safeTransferFrom` 트랜잭션 전송 테스트
+2. Nethereum을 이용한 ERC-1155 `safeBatchTransferFrom` 배치 토큰 전송 테스트
+3. 가스비(Gas Limit, Gas Price) 및 블록체인 영수증(Transaction Receipt) 반환 검증
 
 ---
 
@@ -20,10 +20,10 @@ minting-test/
     ├── Context/           # ApplicationDbContext
     ├── ContractFunctions/ # ERC-721 및 ERC-1155 스마트 컨트랙트 ABI 매핑 클래스
     ├── Controllers/       # EthereumController, MintController
-    ├── Migrations/        # EF Core DB 마이그레이션
+    ├── Migrations/        # EF Core DB 마이그레이션 이력
     ├── Models/            # Whitelist 엔티티
     ├── Repositories/      # WhitelistRepository
     └── Services/          # EthereumService, WhitelistService
 ```
 
-- **[MintingTest README 바로가기](./MintingTest/README.md)**: 소스 구성 및 Nethereum ABI 함수 안내.
+- **[MintingTest README 바로가기](./MintingTest/README.md)**: Nethereum ABI 테스트 함수 안내.

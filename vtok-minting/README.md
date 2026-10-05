@@ -1,60 +1,58 @@
-# ⛏️ VTOK Minting Backend (NFT 민팅 & 메타데이터 API)
+# ⛏️ VTOK Minting Backend (NFT 민팅 & 메타데이터 API 명세서)
 
 VTOK 코어 시스템의 NFT 민팅, IPFS 메타데이터 업로드, 스마트 컨트랙트 트랜잭션 전송 및 화이트리스트 검증을 담당하는 백엔드 엔진 서비스입니다.
 
 ---
 
-## 🏗️ NFT 민팅 처리 아키텍처 (Minting Pipeline)
+## 🗄️ 데이터베이스 스키마 상세 (`ApplicationDbContext`)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client as Client / Admin
-    participant API as MintController (.NET 6 API)
-    participant Service as MintService
-    participant IPFS as IPFS / NFT.Storage Pinning
-    participant Web3 as Nethereum Web3 Engine
-    participant Contract as ERC-721 Smart Contract
-    participant DB as MySQL DB
+1. **`Contracts` 테이블**:
+   - `Address` (`VARCHAR(255)`, Primary Key): 배포된 스마트 컨트랙트 주소
+   - `CreatedDate` (`DATETIME`): 등록일시
 
-    Client->>API: POST /Mint (contractAddress, NFTMeta, quantity)
-    API->>Service: CreateToken(contractAddress, data, quantity)
-    Service->>IPFS: UploadToNFTStorage(metadataJSON)
-    IPFS-->>Service: Return IPFS CID (ipfs://...)
-    loop Minting Quantity Times
-        Service->>Web3: MintERC721(contractAddress, ipfsUrl)
-        Web3->>Contract: Exec mint(to, tokenURI)
-        Contract-->>Web3: Transaction Receipt & TokenID
-        Service->>DB: Insert Token (contractAddress, tokenId)
-    end
-    Service-->>API: Task Completed
-    API-->>Client: HTTP 200 OK
-```
+2. **`Tokens` 테이블**:
+   - `Contract` (`VARCHAR(255)`, Primary Key Order 1): 컨트랙트 주소
+   - `Id` (`INT`, Primary Key Order 2): 온체인 토큰 ID
+   - `CreatedDate` (`DATETIME`): 생성일시
+   - `Receiver` (`VARCHAR(255)`, Nullable): 수령인 지갑 주소
+   - `Received` (`TINYINT(1)`): 수령 여부
+
+3. **`Whitelists` 테이블**:
+   - `Address` (`VARCHAR(255)`, Primary Key): 지갑 주소
+   - `Quantity` (`INT`, Required): 허용 민팅 개수
+   - `CreatedDate` (`DATETIME`): 등록일시
+
+4. **`KeyValues` 테이블**:
+   - `Key` (`VARCHAR(255)`, Primary Key): 설정 키 (`price` 등)
+   - `Value` (`VARCHAR(255)`): 설정 값
 
 ---
 
-## 🛠️ 기술 스택 (Tech Stack)
+## ⚙️ 하드코딩 환경 설정 (`Context/Constants.cs`)
 
-- **Framework**: C# (.NET 6.0 / ASP.NET Core Web API)
-- **Web3 Engine**: Nethereum.Web3 (ERC-721 Web3 RPC Client)
-- **Decentralized Storage**: IPFS (InterPlanetary File System API / `NFT.Storage` Client)
-- **Database**: Entity Framework Core 6, MySQL DB (`ApplicationDbContext`)
+- **이더리움 RPC 엔드포인트**: `https://rinkeby.infura.io/v3/1345b6747e0d4aa0ac47166f5128a4d6`
+- **체인 네트워크**: `Nethereum.Signer.Chain.Rinkeby`
+- **발송자 공개키**: `0x0F623575D3722d89126435b8D33363F1a8589252`
+- **발송자 개인이더리움 키**: `c7eb5dc3d0a2f4d440676f8fa4452dc247722e5e661474b73d24a0103c29421c`
+- **IPFS API URL**: `https://api.nft.storage/upload`
+- **IPFS Bearer Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (`nft.storage` JWT)
 
 ---
 
-## 📂 디렉토리 구조 (Directory Structure)
+## 🔌 컨트롤러 및 API 엔드포인트 명세
 
-```text
-vtok-minting/
-└── MainApplication/       # 백엔드 코어 Web API 프로젝트 디렉토리 (상세설명은 하위 README)
-    ├── Context/           # EF Core Database Context (ApplicationDbContext)
-    ├── Controllers/       # ContractController, MintController, TokenController, WhitelistController
-    ├── Dtos/              # IPFSData, NFTMeta Data Transfer Objects
-    ├── Migrations/        # EF Core DB 마이그레이션 이력
-    ├── Models/            # Contract, KeyValue, Token, Whitelist DB 엔티티
-    ├── Repositories/      # ContractRepository, KeyValueRepository, TokenRepository, WhitelistRepository
-    ├── Services/          # CommonService, ContractService, ControlService, MintService, TokenService, WhitelistService
-    └── Utils/             # Web3Functions (Nethereum RPC), IPFSFunction (Pinning), Contract Function DTOs
-```
+### 1. `MintController` (`[Route("[Controller]")]`)
+- **`POST /Mint`**
+  - Query Params: `contractAddress` (string), `quantity` (int, default=1)
+  - Body: `NFTMeta` JSON 객체
+  - 처리 흐름:
+    1. `IPFSFunction.UploadToNFTStorage(data)` ➔ IPFS CID 생성 (`https://{CID}.ipfs.dweb.link`)
+    2. `Web3Functions.MintERC721(contract, url)` ➔ Nethereum `ERC721MintFunction` 트랜잭션 전송 및 마이닝 영수증 이벤트 `ERC721MintEventDto` 수신
+    3. `_tokenRepository.Insert(contract, tokenId)` ➔ DB 저장
 
-- **[MainApplication README 바로가기](./MainApplication/README.md)**: 소스 코드 레이어별 상세 사양 안내.
+### 2. `TokenController` (`[Route("[Controller]")]`)
+- **`GET /Token`**: 전체 토큰 배열 반환 (`ActionResult<List<Token>>`)
+- **`POST /Token`**: Params `contractAddress` (string), `tokenId` (int) ➔ DB 직접 등록
+- **`DELETE /Token`**: Params `contractAddress` (string), `tokenId` (int) ➔ DB 삭제
+
+- **[MainApplication README 바로가기](./MainApplication/README.md)**: 소스 레이어 상세 안내.

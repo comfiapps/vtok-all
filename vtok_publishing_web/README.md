@@ -14,51 +14,38 @@ VTOK 플랫폼의 메인 브랜딩 웹사이트, 화이트리스트 사전 등�
 
 ```mermaid
 flowchart TD
-    subgraph Frontend ["🖥️ ClientApp Layer (React 17 SPA)"]
-        subgraph UI ["UI 컴포넌트 계층 (src/components)"]
-            MINT_UI["📦 MintBox\n(민팅 진행률 & 신청 버튼)"]
-            TIMER_UI["⏱️ CountDownTimer\n(남은 시간 1초 간격 계산)"]
-            HOUSE_UI["🏠 HousePreview\n(3D/WebP 애니메이션)"]
-        end
-
-        subgraph ClientAPI ["API & SignalR 연동 계층 (src/api)"]
-            API_REQ["📡 apiRequests.js\n(Axios REST API 통신)"]
-            WS_CLIENT["⚡ HubConnectionBuilder\n(SignalR WebSocket 클라이언트)"]
-        end
+    subgraph Frontend ["🖥️ 1. React 프론트엔드 (ClientApp/src)"]
+        direction LR
+        MINT_UI["📦 UI 컴포넌트\n(MintBox / CountDownTimer / HousePreview)"]
+        API_REQ["📡 REST API Client\n(apiRequests.js)"]
+        WS_CLIENT["⚡ WebSocket Client\n(HubConnectionBuilder)"]
 
         MINT_UI --> API_REQ
         MINT_UI <--> WS_CLIENT
     end
 
-    subgraph Backend ["⚙️ ASP.NET Core Backend API Layer"]
-        subgraph Controllers ["API 컨트롤러 계층 (ApiControllers/)"]
-            CTRL["🎮 MittingController.cs\n- GET /api/time, /api/mitting, /api/result\n- GET /api/addr/{id}, /api/count/{round}\n- POST /api/sitin/{id}, /api/approval/{id}"]
-        end
-
-        subgraph Services ["비즈니스 서비스 계층 (Service/)"]
-            SVC["🧠 MittingService.cs\n- Type 6: 라운드 시간 검증\n- Type 1: 수량 소진 검증 (cnt >= time.Count)\n- Type 3: 화이트리스트 검증\n- Type 4: 남은 잔여 수량 차감 검증"]
-            HOSTED["🔄 TimedHostedService.cs (IHostedService)\n- 5초 주기 백그라운드 DoWork 루프\n- Redis 민팅 상태 감시 및 브로드캐스트"]
-        end
-
-        subgraph Hubs ["웹소켓 허브 계층 (Hubs/)"]
-            HUB["💬 ChatHub.cs\n- 경로: /chatHub\n- 브로드캐스트: Count, Time, Web"]
-        end
+    subgraph Backend ["⚙️ 2. ASP.NET Core 백엔드 API (vtok_publishing_web)"]
+        direction LR
+        CTRL["🎮 MittingController\n(REST API Endpoints)"]
+        SVC["🧠 MittingService\n(자격/수량 비즈니스 검증)"]
+        HOSTED["🔄 TimedHostedService\n(5초 백그라운드 타이머)"]
+        HUB["💬 ChatHub\n(SignalR /chatHub 허브)"]
 
         CTRL --> SVC
         HOSTED --> HUB
     end
 
-    subgraph Storage ["💾 Infrastructure & Data Layer"]
-        REDIS[("⚡ Redis Cache (Repository/RedisRepository.cs)\n- Mitting{round} (라운드별 누적 민팅 수량)\n- MintingTime (현재 라운드 진행 상태)")]
-        MYSQL[("🗄️ MySQL Database (Data/ApiDataContext.cs)\n- SitinAddr (사전 대기열 등록 주소)\n- MittingAddr (최종 승인 및 결제 내역)")]
-
-        SVC -->|EF Core DbContext| MYSQL
-        CTRL -->|실시간 카운트 조회| REDIS
-        HOSTED -->|5초 간격 상태 조회| REDIS
+    subgraph Storage ["💾 3. 인프라 & 데이터베이스"]
+        direction LR
+        REDIS[("⚡ Redis Cache\n- Mitting{round}\n- MintingTime")]
+        MYSQL[("🗄️ MySQL Database\n- SitinAddr (사전 대기열)\n- MittingAddr (승인 내역)")]
     end
 
     API_REQ -->|HTTP REST API| CTRL
-    HUB -.->|SignalR Realtime WebSocket Push| WS_CLIENT
+    SVC -->|EF Core ApiDataContext| MYSQL
+    CTRL -->|카운트 조회| REDIS
+    HOSTED -->|5초 주기 조회| REDIS
+    HUB -.->|SignalR Realtime Push| WS_CLIENT
 ```
 
 ---

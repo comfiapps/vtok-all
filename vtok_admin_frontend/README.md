@@ -7,34 +7,38 @@ VTOK 플랫폼 운영자를 위한 전용 React 백오피스 어드민 웹 애�
 ## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
 
 ```mermaid
-flowchart TD
-    subgraph ViewTier ["🖥️ 1. React 어드민 뷰 계층 (React Admin UI)"]
+flowchart LR
+    subgraph ViewTier ["🖥️ 1. React 어드민 뷰 계층 (UI Layer)"]
         direction TB
         NAV["🧭 MainAppBar\n(/category, /file, /file/:id)"]
-        PAGES["📄 Pages\n- CategoryPage (계층형 카테고리 트리)\n- FilePage (카테고리별 에셋 관리)\n- FileHistoryPage (버전 감사 로그)"]
-        DIALOGS["🧩 Dialogs & Controls\n- CategoryCreateDialog / CategoryModifyDialog\n- FileUploadDialog / FileUpdateDialog\n- DeleteAlert / CustomDataGrid"]
+        PAGES["📄 Pages\n- CategoryPage (계층형 트리 대시보드)\n- FilePage (카테고리별 에셋 관리)\n- FileHistoryPage (버전 감사 로그)"]
+        DIALOGS["🧩 Dialogs & Controls\n- CategoryCreate / Modify\n- FileUpload / Update\n- DeleteAlert / CustomDataGrid"]
         NAV --> PAGES
         PAGES --> DIALOGS
     end
 
-    subgraph TreeParser ["🌲 2. 2자리 코드 기반 계층 구조 파서 (HierarcialCategory)"]
+    subgraph TreeParser ["🌲 2. 2자리 코드 계층 파서 (Algorithm)"]
+        direction TB
         CODE_SYS["strings.codeLength = 2\n- Depth 1: 01 (길이 2)\n- Depth 2: 0101 (길이 4)\n- Depth 3: 010101 (길이 6)"]
-        BREADCRUMB["Breadcrumb Splits\nsubstr(0, i) 상위 코드 자동 분할 탐색"]
+        BREADCRUMB["Breadcrumb Splits\nsubstr(0, i) 상위 코드 분할 탐색"]
+        CODE_SYS --- BREADCRUMB
     end
 
     subgraph ServiceTier ["📡 3. 네트워크 & 프록시 계층 (API Layer)"]
+        direction TB
         REQ["Axios Request Wrapper\n(src/api/request.js)"]
-        PROXY["setupProxy.js (http-proxy-middleware)\n(Proxy /api -> http://localhost:8080)"]
+        PROXY["setupProxy.js (http-proxy-middleware)\n(Proxy /api -> localhost:8080)"]
+        REQ --> PROXY
     end
 
-    subgraph ServerTier ["⚙️ 4. 관리자 백엔드 서버 (Admin API Server)"]
-        API[("🛠️ Admin API Backend (Port 8080)\n- /api/get/category, /api/del/category\n- /api/get/file, /api/del/file\n- /api/get/file/history")]
+    subgraph ServerTier ["⚙️ 4. 관리자 백엔드 서버 (Backend API)"]
+        direction TB
+        API[("🛠️ Admin API Backend (Port 8080)\n- /api/get/category, /del/category\n- /api/get/file, /del/file\n- /api/get/file/history")]
     end
 
-    PAGES --> TreeParser
-    DIALOGS --> REQ
-    REQ --> PROXY
-    PROXY -->|HTTP REST| API
+    PAGES <-->|트리 연산| TreeParser
+    DIALOGS -->|API 요청| REQ
+    PROXY -->|HTTP REST 포워딩| API
 ```
 
 ---

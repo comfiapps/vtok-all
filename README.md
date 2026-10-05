@@ -1,60 +1,54 @@
-# 🚀 VTOK-ALL 통합 모노레포 플랫폼 (VTOK Monorepo System Specification)
+# 🚀 VTOK-ALL 프로젝트 워크스페이스 (VTOK Multi-Project Workspace)
 
 > [!IMPORTANT]
 > **🤖 AI Agent 및 개발자를 위한 탐색 및 코드 수정 지침 (AI Agent & Developer Notice)**
-> - 본 저장소는 VTOK(브이톡) NFT 웹 생태계 전체의 백엔드 API, 프론트엔드 어드민, 퍼블리싱 웹, 스마트 컨트랙트 연동 모듈 및 마켓플레이스가 통합된 모노레포입니다.
-> - **AI Agent 또는 개발자는 소스 코드를 개별 파일 단위로 모두 읽어볼 필요 없이, 본 README 및 각 하위 프로젝트의 `README.md` 문서만 확인하면 데이터베이스 테이블 구조, API 엔드포인트 파라미터, 스마트 컨트랙트 ABI, 프론트엔드 컴포넌트 사양을 100% 구체적으로 파악할 수 있습니다.**
+> - 본 저장소는 VTOK(브이톡) 서비스 코어를 비롯해 Web3/블록체인 실험, UI/그래픽 템플릿, 마켓플레이스 클론 및 프로그래밍 언어 학습 프로젝트들이 포함된 **멀티 프로젝트 워크스페이스(Monorepo Workspace)**입니다.
+> - **각 하위 디렉토리는 서로 독립된 프로젝트로 구성되어 있으며**, 각 프로젝트의 `README.md` 문서를 통해 세부 데이터베이스 구조, API 엔드포인트, 스마트 컨트랙트 사양을 확인할 수 있습니다.
 
 ---
 
-## 📐 1. 시스템 전체 아키텍처 및 데이터 흐름 (Architecture & Data Flow)
+## 📐 1. 워크스페이스 프로젝트 구성도 (Workspace Architecture & Domain Map)
 
 ```mermaid
-flowchart TD
-    subgraph ClientLayer ["🖥️ Client Layer (Frontend Applications)"]
-        PW["🌐 vtok_publishing_web/ClientApp\n(React 17 + MUI + SignalR Client)"]
+flowchart TB
+    subgraph Core ["🌐 VTOK 관련 프로젝트 (VTOK Core Projects)"]
+        direction TB
+        PW["🌐 vtok_publishing_web\n(React 17 + ASP.NET Core + SignalR)"]
         AF["📊 vtok_admin_frontend\n(React + MUI DataGrid Pro)"]
-        ETH_TEST["⛓️ ethereum-transaction-test\n(React + Web3.js / Ethers.js)"]
-        META_TMPL["🦊 Metamask-Template\n(React Boilerplate)"]
-        SPINE_TEST["🎮 spine-player-test\n(React + Spine WebGL Player)"]
+        MINT["⛏️ vtok-minting\n(NFT 코어 민팅 엔진 & Web3 API)"]
     end
 
-    subgraph BackendLayer ["⚙️ Backend API Layer (.NET 6 / ASP.NET Core)"]
-        WEB_BACKEND["vtok_publishing_web API\n(Controllers: MittingController, Hubs: ChatHub)"]
-        MINT_BACKEND["vtok-minting API\n(Controllers: Mint, Token, Whitelist, Contract)"]
-        SANDBOX_BACKEND["SandboxClone API\n(Controllers: Cart, NFT, NFTGroup, User)"]
-        TEST_BACKEND["minting-test API\n(Controllers: EthereumController, MintController)"]
+    subgraph Web3 ["⛓️ Web3 & 블록체인 실험 (Web3 Labs)"]
+        direction TB
+        ETH_TEST["⛓️ ethereum-transaction-test\n(React + Web3.js 잔액/전송 테스트)"]
+        MINT_TEST["🧪 minting-test\n(ERC-721/1155 스마트 컨트랙트 테스트 API)"]
+        META_TMPL["🦊 Metamask-Template\n(React 메타마스크 지갑 연동 템플릿)"]
     end
 
-    subgraph StorageLayer ["💾 Infrastructure & Database Layer"]
-        REDIS[("⚡ Redis Cache (Port 6379)\n- Keys: minting:count:{round}\n- Realtime SignalR State")]
-        MYSQL[("🗄️ MySQL Database (Port 3306)\n- Tables: SitinAddr, MittingAddr,\nWhitelists, Contracts, Tokens,\nKeyValues, Users, NFTGroup, CartItem")]
-        IPFS["📦 IPFS / NFT.Storage\n- API: https://api.nft.storage/upload\n- Return: ipfs://{CID}"]
+    subgraph Clones ["📦 클론 & 시뮬레이션 프로젝트 (Clone Projects)"]
+        direction TB
+        SANDBOX["📦 SandboxClone\n(더 샌드박스 스타일 NFT 마켓플레이스 API)"]
+        ASP["💻 ASPClone\n(ASP.NET Core Web API 패턴 실습)"]
     end
 
-    subgraph BlockchainLayer ["⛓️ Blockchain Network Layer"]
-        RINKEBY["이더리움 / Klaytn 네트워크 (Rinkeby / Mainnet)\n- Smart Contract: ERC-721 / ERC-1155\n- Web3 Provider: Nethereum Web3"]
+    subgraph FrontendDemos ["🎮 그래픽 & UI 실습 (UI & Graphics Demos)"]
+        direction TB
+        SPINE["🎮 spine-player-test\n(React + Spine 2D WebGL 플레이어)"]
     end
 
-    PW -->|HTTP REST & SignalR /chatHub| WEB_BACKEND
-    AF -->|HTTP REST /api/get/category, /api/get/file| WEB_BACKEND
-    ETH_TEST -->|window.ethereum / WalletConnect| RINKEBY
-
-    WEB_BACKEND -->|StackExchange.Redis| REDIS
-    WEB_BACKEND -->|EF Core ApiDataContext| MYSQL
-
-    MINT_BACKEND -->|HTTP Bearer Auth| IPFS
-    MINT_BACKEND -->|Nethereum ERC721MintFunction| RINKEBY
-    MINT_BACKEND -->|EF Core ApplicationDbContext| MYSQL
-
-    SANDBOX_BACKEND -->|EF Core ApplicationDbContext| MYSQL
+    subgraph Learning ["📘 언어 & 백엔드 실습 (Language & Stack Practice)"]
+        direction TB
+        CSHARP["📘 CSharpPractice\n(C# 알고리즘 & 자료구조)"]
+        GO["🐹 go_practice\n(Go 백엔드 기초 예제)"]
+        PYTHON["🐍 python_rest_api_practice\n(Python Flask REST API)"]
+    end
 ```
 
 ---
 
 ## 🗄️ 2. 데이터베이스 테이블 스키마 총괄 (Database Schema Reference)
 
-각 서비스에서 사용되는 MySQL 데이터베이스 테이블 및 칼럼 명세입니다.
+각 독립 백엔드 프로젝트(`vtok_publishing_web`, `vtok-minting`, `SandboxClone`)에서 개별적으로 사용하는 MySQL 데이터베이스 테이블 및 칼럼 명세입니다.
 
 ### 2.1 `vtok_publishing_web` 데이터베이스 (`ApiDataContext`)
 - **`SitinAddr` 테이블** (사전 등록/대기열 지갑 주소):
@@ -160,6 +154,6 @@ flowchart TD
 | 🎮 [**spine-player-test**](./spine-player-test) | Spine 2D 캐릭터 WebGL 플레이어 테스트 | [바로가기](./spine-player-test/README.md) \| [src](./spine-player-test/src/README.md) |
 | 📦 [**SandboxClone**](./SandboxClone) | 더 샌드박스 스타일 마켓플레이스 백엔드 API | [바로가기](./SandboxClone/README.md) \| [MainApp](./SandboxClone/MainApplication/README.md) |
 | 💻 [**ASPClone**](./ASPClone) | ASP.NET Core Web API 기초 패턴 실습 | [바로가기](./ASPClone/README.md) \| [ASPPractice](./ASPClone/ASPPractice/README.md) |
-| 📘 [**CSharpPractice**](./CSharpPractice) | C# 알고리즘 (BFS, DFS) 및 자료구조 코드 | [바로가기](./CSharpPractice/README.md) \| [CSharpPractice](./CSharpPractice/CSharpPractice/README.md) |
-| 🐹 [**go_practice**](./go_practice) | Go (Golang) 백엔드 기초 예제 | [바로가기](./go_practice/README.md) \| [src](./go_practice/src/README.md) |
-| 🐍 [**python_rest_api_practice**](./python_rest_api_practice) | Python Flask REST API & Producer/Consumer | [바로가기](./python_rest_api_practice/README.md) |
+| 📘 [**CSharpPractice**](./CSharpPractice) | C# 알고리즘 (QuickSort, BFS, DFS) 구현 실습 | [바로가기](./CSharpPractice/README.md) \| [CSharpPractice](./CSharpPractice/CSharpPractice/README.md) |
+| 🐹 [**go_practice**](./go_practice) | Go (Golang) 기초 문법, 포인터 및 함수 실습 | [바로가기](./go_practice/README.md) \| [src](./go_practice/src/README.md) |
+| 🐍 [**python_rest_api_practice**](./python_rest_api_practice) | Python requests 기반 REST API 연동 및 부하 테스트 | [바로가기](./python_rest_api_practice/README.md) |

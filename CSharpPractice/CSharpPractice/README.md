@@ -1,49 +1,23 @@
 # 📂 CSharpPractice - 알고리즘 C# 소스 코드 명세
 
-### 1. `BFS.cs` (너비 우선 탐색)
+### 1. `AlgorithmPractice.cs` (알고리즘 분기 러너)
+- 콘솔 입력(`qs`, `bfs`, `dfs`)에 따라 각 알고리즘을 실행합니다.
+
+### 2. QuickSort (`AlgorithmPractice.cs`)
 ```csharp
-public class BFS
-{
-    public void Search(int startNode, List<int>[] adj, bool[] visited)
-    {
-        Queue<int> q = new Queue<int>();
-        q.Enqueue(startNode);
-        visited[startNode] = true;
-
-        while (q.Count > 0)
-        {
-            int curr = q.Dequeue();
-            Console.WriteLine($"Visited Node: {curr}");
-
-            foreach (int next in adj[curr])
-            {
-                if (!visited[next])
-                {
-                    visited[next] = true;
-                    q.Enqueue(next);
-                }
-            }
-        }
+static int Partition(int[] arr, int left, int right) {
+    int pivot = arr[left];
+    while (true) {
+        while (arr[left] < pivot) left++;
+        while (arr[right] > pivot) right--;
+        if (left < right) (arr[right], arr[left]) = (arr[left], arr[right]);
+        else return right;
     }
 }
 ```
 
-### 2. `DFS.cs` (깊이 우선 탐색 - 재귀)
-```csharp
-public class DFS
-{
-    public void Search(int curr, List<int>[] adj, bool[] visited)
-    {
-        visited[curr] = true;
-        Console.WriteLine($"DFS Visited Node: {curr}");
+### 3. `BFS.cs` (독일 도시 그래프 너비 우선 탐색)
+- `City` 열거형(`Frankfurt`, `Mannheim`, `Wurzburg`, `Kassel`, `Munchen` 등)을 정점으로 연결 리스트(`LinkedList<int>[]`) 기반의 인접 리스트를 구성하고 `queue`를 통해 순회합니다.
 
-        foreach (int next in adj[curr])
-        {
-            if (!visited[next])
-            {
-                Search(next, adj, visited);
-            }
-        }
-    }
-}
-```
+### 4. `DFS.cs` (깊이 우선 탐색 - 재귀)
+- 연결 리스트로 표현된 노드 그래프를 재귀 함수(`Recursive(int current)`)로 순회하며 방문한 정점을 `visited`에 기록합니다.

@@ -115,11 +115,11 @@ flowchart TD
     LOOP --> REDIS_QUERY[⚡ Redis GetMintingTime 조회]
     
     REDIS_QUERY --> COND{현재 민팅 상태}
-    COND -->|state == "Start"| START_BRANCH[Mitting1 카운터 및 남은 시간 수신]
-    COND -->|state == "End"| END_BRANCH[전체 웹 클라이언트에 "End" 전송 후 Timer 종료]
+    COND -->|Start 상태| START_BRANCH[Mitting1 카운터 및 남은 시간 수신]
+    COND -->|End 상태| END_BRANCH[전체 웹 클라이언트에 End 전송 후 Timer 종료]
     COND -->|기타 상태| IDLE_BRANCH[현재 라운드 상태 브로드캐스트]
 
-    START_BRANCH --> BROADCAST[💬 ChatHub SendAsync "Receive", "Time", response]
+    START_BRANCH --> BROADCAST[💬 ChatHub SendAsync]
     IDLE_BRANCH --> BROADCAST
     BROADCAST --> LOOP
     END_BRANCH --> STOP([🛑 Hosted Service Dispose])

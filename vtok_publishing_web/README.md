@@ -52,43 +52,61 @@ flowchart TD
 
 ### 1.2 민팅 승인 및 실시간 카운트 브로드캐스트 시퀀스 (Minting & SignalR Sequence)
 
-사용자가 민팅 버튼을 클릭했을 때의 HTTP 요청부터 DB 반영, Redis 캐싱 및 SignalR 웹소켓을 통한 전 사용자 실시간 카운터 업데이트까지의 시퀀스입니다.
+사용자가 민팅 버튼을 클릭했을 때의 reCAPTCHA 검증부터 Kaikas 지갑 서명, DB 반영, Redis 캐싱 및 SignalR 웹소켓을 통한 전 사용자 실시간 카운터 업데이트까지의 3단계(Phase) 시퀀스입니다.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User as 👤 사용자 브라우저
     participant UI as 📦 MintBox (React)
-    participant Req as 📡 apiRequests.js
+    participant Captcha as 🛡️ Google reCAPTCHA
+    participant Kaikas as 🦊 Kaikas (window.klaytn)
     participant API as 🎮 MittingController
     participant Svc as 🧠 MittingService
     participant DB as 🗄️ MySQL (ApiDataContext)
     participant Redis as ⚡ Redis (RedisRepository)
     participant Hosted as 🔄 TimedHostedService
     participant Hub as 💬 ChatHub (SignalR)
+    participant OtherUsers as 👥 전체 접속 사용자
 
     User->>UI: 1. "민팅하기" 버튼 클릭
-    UI->>Req: 2. postApproval(id, dto) 호출
-    Req->>API: 3. POST /api/approval/{id}
-    API->>Svc: 4. Approval(id, mittingDto) 검증 요청
-    
+    UI->>Captcha: 2. executeAsync() 봇 검증 토큰 획득
+    Captcha-->>UI: 3. captchaToken 반환
+
     rect rgb(240, 248, 255)
-        note over Svc,DB: 예외 조건 및 잔여 수량 정밀 검증
-        Svc->>DB: 5. SitinAddr / MittingAddr 화이트리스트 & 이전 수량 조회
-        Svc->>Svc: 6. 수량 검증 (Type 1, 3, 4, 6 체크)
-        Svc->>DB: 7. MittingAddr 승인 내역 Insert & SitinAddr 차감 Update
-        Svc->>Redis: 8. Mitting{round} 카운트 Increment
+        note over UI,DB: [Phase 1] 자격 및 잔여 수량 정밀 검증 (Sitin)
+        UI->>API: 4. POST /api/sitin/{account}?token={captchaToken}
+        API->>Svc: 5. Sitin(sitinDto)
+        Svc->>Redis: 6. CheckTime() & GetKey("Mitting" + round)
+        Svc->>DB: 7. 화이트리스트 & 이전 수량 확인 후 SitinAddr Insert
+        Svc-->>API: 8. transactionModel (to: "0xc095...136", gas: "21000")
+        API-->>UI: 9. HTTP 200 OK
     end
 
-    Svc-->>API: 9. 승인 결과 Return
-    API-->>Req: 10. HTTP 200 OK 응답
-    Req-->>UI: 11. 승인 성공 알림 UI 표시
+    rect rgb(255, 250, 240)
+        note over UI,Kaikas: [Phase 2] 온체인 트랜잭션 서명 및 전송
+        UI->>Kaikas: 10. klay_sendTransaction (to, value: 0.0001 KLAY, gas)
+        Kaikas->>User: 11. 서명 팝업 승인 요청
+        User-->>Kaikas: 12. 서명 승인
+        Kaikas-->>UI: 13. 온체인 트랜잭션 해시(Tx_id) 반환
+    end
+
+    rect rgb(245, 255, 245)
+        note over UI,OtherUsers: [Phase 3] 승인 영속화 및 실시간 브로드캐스트 (Approval)
+        UI->>API: 14. POST /api/approval/{account} (Tx_id, Count, Round)
+        API->>Svc: 15. Approval(mittingDto)
+        Svc->>DB: 16. MittingAddr 승인 내역 Insert & CheckCount(round) 합산
+        Svc->>Redis: 17. SetKey("Mitting" + round, cnt) 최신화
+        API->>Hub: 18. Clients.All.SendAsync("Receive", "Count", cnt)
+        Hub-->>OtherUsers: 19. WebSocket 실시간 Count 푸시
+        Hub-->>UI: 20. WebSocket 실시간 Count 푸시 & UI 갱신 완료
+        API-->>UI: 21. HTTP 200 OK 최종 응답
+    end
 
     par 백그라운드 5초 타이머 브로드캐스트
-        Hosted->>Redis: 12. 5초마다 GetMintingTime() & Mitting{round} 조회
-        Hosted->>Hub: 13. SendAsync("Receive", "Count", cnt) 트리거
-        Hub-->>UI: 14. WebSocket "Count" 이벤트 브로드캐스트 (전체 사용자)
-        UI->>UI: 15. 민팅 진행률 Bar 및 카운터 UI 실시간 렌더링
+        Hosted->>Redis: 22. 5초마다 GetMintingTime() & GetTime() 조회
+        Hosted->>Hub: 23. SendAsync("Receive", "Time"/"Web", data) 트리거
+        Hub-->>OtherUsers: 24. 상태 동기화 웹소켓 푸시
     end
 ```
 

@@ -1,0 +1,11 @@
+.App {
+    height: 100%;
+    box-sizing: border-box;
+    padding-top: 56px;
+}
+
+.MuiDataGrid-main:nth-last-child(2) {
+    z-index: 0;
+    /*display: none;*/
+    /*background-color: rgba(130, 130, 130);*/
+}

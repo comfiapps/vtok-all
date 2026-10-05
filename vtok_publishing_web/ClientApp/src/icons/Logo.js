@@ -1,0 +1,13 @@
+import * as React from 'react';
+import SvgIcon from '@mui/material/SvgIcon';
+
+function Logo({color, fontSize, ...props}) {
+    return (
+        <SvgIcon viewBox={"0 0 56 56"} color={color} fontSize={fontSize} {...props}>
+            <path className="cls-1"
+                  d="M28,2,4.015,15.848v24.3l8,4.616V28.452l7.995,4.616V49.384L28,54,51.985,39.833V15.848Zm-8,23.063L12.01,20.447l7.995-4.616,8,4.616Z"/>
+        </SvgIcon>
+    );
+}
+
+export default Logo;

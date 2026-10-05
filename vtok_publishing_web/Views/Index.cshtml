@@ -1,0 +1,280 @@
+﻿
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<div class="container">
+    <h1>환영합니다!</h1>
+    <div class="form-group">
+        <span type="text" id="title"> </span>
+        <span type="day" class="day"></span>
+        <span type="text" class="hours"></span>
+        <span type="text" class="minutes"></span>
+        <span type="text" class="seconds"></span>
+    </div>
+    <div class="form-group">
+        참여가능 수량 : <span type="text" class="count"></span>
+    </div>
+    <div class="form-group">
+        클레이튼 지갑주소 : <span type="text" id="account"></span>
+    </div>
+    <button type="button" id="klaytn" class="btn btn-default klaytn">지갑연동</button>
+    <button type="button" id="sitin" class="btn btn-default sitin">참여하기</button>
+
+</div>
+<script>
+
+    $(document).ready(function () {
+        var authority = 1;
+        var walletaddress = "0x1";
+        var balance = "0";
+        var nt = 0;
+        var ot = 0;
+        var et = 0;
+        var count = 0;
+        var value = "0";
+        var round = 0;
+        function TimeText() {
+
+            if (nt < ot) {
+                $('#sitin').prop('disabled', true);
+
+                $("#title").html(" 오픈 까지 남은 시간");
+                sec = parseInt(ot - nt);
+                authority = 1;
+
+                // 타임만 연결
+
+            }
+            else if (et > nt) {
+
+                $("#title").html(" 종료 까지 남은 시간");
+                sec = parseInt(et - nt);
+                authority = 2;
+
+
+                // 카운터 연결 와 시간연결
+
+            }
+
+            day = parseInt(sec / 60 / 60 / 24);
+            sec = (sec - (day * 60 * 60 * 24));
+            hour = parseInt(sec / 60 / 60);
+            sec = (sec - (hour * 60 * 60));
+            min = parseInt(sec / 60);
+            sec = parseInt(sec - (min * 60));
+
+            if (hour < 10) { hour = "0" + hour; }
+            if (min < 10) { min = "0" + min; }
+            if (sec < 10) { sec = "0" + sec; }
+
+            $(".day").html(day);
+            $(".hours").html(hour);
+            $(".minutes").html(min);
+            $(".seconds").html(sec);
+            $(".count").html(count);
+            nt++;
+
+        }
+
+        function loadTime() {
+            $.ajax({
+                type: "GET",
+                url: "/api/time",
+                dataType: "text",
+                success: function (result) {
+                    time = $.parseJSON(result);
+                    nt = time.nowdate;
+                    ot = time.startdate;
+                    et = time.enddate;
+                    count = time.count;
+                    round = time.round;
+                    setInterval(TimeText, 1000);
+                },
+                error: function () {
+
+                }
+
+            });
+
+
+        }
+        function SocktloadTime(result) {
+
+            var time = JSON.parse(result);
+            nt = time.Nowdate;
+            ot = time.Startdate;
+            et = time.Enddate;
+            count = time.Count;
+            round = time.Round;
+            TimeText();
+
+        }
+        async function sitin() {
+
+            const accounts = await klaytn.enable();
+            var walletaddress = accounts[0];
+
+            $("#account").html(walletaddress);
+
+            if (walletaddress.length < 14) {
+                alert("카이카스지갑 을 연동 해주세요.");
+                return false;
+            }
+
+            if (klaytn.networkVersion != 8217) {
+                //   $('#sitin').prop('disabled', false);
+                //  alert("네트워크를 확인 해주세요.");
+                // return false;
+            }
+
+
+
+
+            if (authority < 2) {
+
+                alert("참여 기간이 아닙니다. ");
+                return false;
+            }
+            /*
+           if (walletaddress.length < 14) {
+  
+              alert("지갑 을 연동 해주세요.");
+              return false;
+          }
+          if (balance < 50) {
+  
+              alert("지갑 잔액을 확인 해주세요.");
+              return false;
+          }
+           */
+
+
+
+
+            $.post({
+                url: "/api/sitin/" + walletaddress + "?addr=" + walletaddress + "&form=0xc095f858dd6a0d87cb9755e11caba1ec6305a136"
+                , headers: { 'Content-Type': 'application/json' }
+                , dataType: 'json'
+                , success: function (result) {
+
+                    if (result.msgType == "error") {
+
+                        console.log('이미 참여 하셨 습니다. ');
+                        $('#sitin').prop('disabled', false);
+
+                        return false;
+                    }
+
+                    const transactionParameters =
+                    {
+                        gas: "21000",
+                        to: result.to,
+                        from: klaytn.selectedAddress,
+                        value: "100000000000000"
+                    }
+
+                    klaytn.sendAsync(
+                        {
+                            method: 'klay_sendTransaction',
+                            params: [transactionParameters],
+                            from: klaytn.selectedAddress
+                        },
+                        (err, added) => {
+                            if (added) {
+                                count = result.count;
+
+                                approval(added);
+                            } else {
+                                $('#sitin').prop('disabled', false);
+                            }
+                        }
+                    );
+                },
+                error: function () {
+                    alert("잠시후 시도해주세요.");
+                    $('#sitin').prop('disabled', false);
+                }
+
+            });
+
+        }
+
+
+        async function approval(added) {
+
+            if (!added.result) {
+                $('#sitin').prop('disabled', false);
+                console.log("거부");
+                return false;
+
+            }
+            var data =
+            {
+                "Addr": klaytn.selectedAddress
+                , "Tx_id": added.result
+                , "Value": value
+                , "Count": count
+                , "Round": round
+            };
+
+            $.post({
+                url: "/api/approval/" + klaytn.selectedAddress + "?addr=" + walletaddress + "&form=0xc095f858dd6a0d87cb9755e11caba1ec6305a136"
+                , headers: { 'Content-Type': 'application/json' }
+                , dataType: 'json'
+                , data: JSON.stringify(data)
+                , success: function (result) {
+
+                    console.log(data);
+                    $('#sitin').prop('disabled', false);
+
+                },
+                error: function () {
+                    $('#sitin').prop('disabled', false);
+                }
+            });
+        }
+
+
+        async function Walletklaytns() {
+            const accounts = await klaytn.enable();
+
+            var account = accounts[0];
+            $("#account").html(account);
+        }
+
+        klaytn.on('accountsChanged', function (accounts) {
+            var account = accounts[0];
+            $("#account").html(account);
+
+        })
+
+        $("#klaytn").click(function () {
+            $('#sitin').prop('disabled', true);
+            klaytn.enable()
+            Walletklaytns();
+            $('#sitin').prop('disabled', false);
+        });
+
+        $("#sitin").on('click', function () {
+            $('#sitin').prop('disabled', true);
+            sitin();
+
+        });
+
+
+        Walletklaytns();
+
+        loadTime();
+   
+
+ });
+
+   
+
+
+//웹소켓 연결 해서 시간 및 남은수량  체크 변경사항 알려주기
+//남은수량가져오기
+   
+</script>

@@ -1,5 +1,5 @@
-# 🚀 VTOK-ALL 멀티 프로젝트 워크스페이스 & 인수인계 종합 지침서
-> **VTOK Multi-Project Monorepo Workspace & Technical Handover Architecture Specification**
+# 🚀 VTOK-ALL 멀티 프로젝트 워크스페이스 종합 지침서
+> **VTOK Multi-Project Workspace Architecture Specification**
 
 ![.NET 6](https://img.shields.io/badge/.NET%20Core-6.0-512BD4?logo=dotnet)
 ![React](https://img.shields.io/badge/React-17.0-61DAFB?logo=react)
@@ -14,22 +14,14 @@
 
 ---
 
-> [!IMPORTANT]
-> **🤖 신규 입사자 및 AI Agent를 위한 인수인계 필수 지침 (Developer Onboarding Notice)**
-> - 본 저장소는 VTOK(브이톡) NFT 생태계 코어 플랫폼을 포함하여 Web3/블록체인 연동 모듈, 마켓플레이스 클론, 2D 그래픽 렌더러, 프로그래밍 언어 실습 프로젝트가 통합 관리되는 **멀티 프로젝트 워크스페이스(Monorepo Workspace)**입니다.
-> - **각 하위 디렉토리는 독립적으로 실행 가능한 프로젝트**로 구성되어 있으며, 본 문서 및 각 하위 프로젝트의 `README.md`를 참고하여 빠르게 환경을 구축하고 소스 코드를 파악할 수 있습니다.
-
----
-
 ## 📌 목차 (Table of Contents)
 
 1. [📐 워크스페이스 구조 및 아키텍처 맵](#-1-워크스페이스-구조-및-아키텍처-맵)
-2. [🛠️ 개발 환경 구축 & 프로젝트 실행 가이드](#️-2-개발-환경-구구축--프로젝트-실행-가이드)
+2. [🛠️ 개발 환경 구축 & 프로젝트 실행 가이드](#️-2-개발-환경-구축--프로젝트-실행-가이드)
 3. [📂 12대 프로젝트 카탈로그 & 하위 README 링크](#-3-12대-프로젝트-카탈로그--하위-readme-링크)
 4. [🗄️ 데이터베이스 스키마 및 EF Core DbContext 명세](#️-4-데이터베이스-스키마-및-ef-core-dbcontext-명세)
 5. [🔌 주요 REST API 엔드포인트 총괄 명세](#-5-주요-rest-api-엔드포인트-총괄-명세)
 6. [⛓️ 스마트 컨트랙트 & Web3 연동 사양](#️-6-스마트-컨트랙트--web3-연동-사양)
-7. [📋 신규 개발자 인수인계 체크리스트](#-7-신규-개발자-인수인계-체크리스트)
 
 ---
 
@@ -38,37 +30,37 @@
 전체 저장소는 **5가지 목적별 도메인 그룹**으로 분류되어 있습니다.
 
 ```mermaid
-flowchart TB
-    subgraph Core ["🌐 VTOK 코어 서비스 (VTOK Core Services)"]
+flowchart LR
+    subgraph Core ["🌐 VTOK 코어 서비스"]
         direction TB
         PW["🌐 vtok_publishing_web\n(React 17 + ASP.NET Core + SignalR)"]
-        AF["📊 vtok_admin_frontend\n(React + MUI DataGrid Pro 백오피스)"]
-        MINT["⛏️ vtok-minting\n(NFT 코어 민팅 엔진 & IPFS Web3 API)"]
+        AF["📊 vtok_admin_frontend\n(React + MUI 백오피스)"]
+        MINT["⛏️ vtok-minting\n(NFT 코어 민팅 엔진 & API)"]
     end
 
-    subgraph Web3 ["⛓️ Web3 & 블록체인 실험실 (Web3 Labs)"]
+    subgraph Web3 ["⛓️ Web3 실험실"]
         direction TB
-        ETH_TEST["⛓️ ethereum-transaction-test\n(React + Ethers.js/Web3.js 잔액 & 전송)"]
-        MINT_TEST["🧪 minting-test\n(ERC-721/1155 Nethereum 가스비 테스트 API)"]
-        META_TMPL["🦊 Metamask-Template\n(React 지갑 연동 및 체인 이벤트 템플릿)"]
+        ETH_TEST["⛓️ ethereum-transaction-test\n(React + Ethers.js/Web3.js)"]
+        MINT_TEST["🧪 minting-test\n(ERC-721/1155 가스비 테스트 API)"]
+        META_TMPL["🦊 Metamask-Template\n(React 지갑 연동 템플릿)"]
     end
 
-    subgraph Clones ["📦 클론 & 백엔드 아키텍처 (Clone Projects)"]
+    subgraph Clones ["📦 마켓플레이스 & 클론"]
         direction TB
-        SANDBOX["📦 SandboxClone\n(더 샌드박스 마켓플레이스 API + EF Core)"]
-        ASP["💻 ASPClone\n(ASP.NET Core Controller-Service-Model 실습)"]
+        SANDBOX["📦 SandboxClone\n(더 샌드박스 API + EF Core)"]
+        ASP["💻 ASPClone\n(ASP.NET Core API 실습)"]
     end
 
-    subgraph FrontendDemos ["🎮 UI & 그래픽 프로토타입 (UI & Graphics Demos)"]
+    subgraph Demos ["🎮 UI & 그래픽"]
         direction TB
-        SPINE["🎮 spine-player-test\n(React + Spine 2D WebGL 애니메이션 플레이어)"]
+        SPINE["🎮 spine-player-test\n(Spine 2D WebGL 플레이어)"]
     end
 
-    subgraph Learning ["📘 언어 및 백엔드 스택 실습 (Language & Stack Practice)"]
+    subgraph Learning ["📘 언어 & 스택 실습"]
         direction TB
-        CSHARP["📘 CSharpPractice\n(C# 퀵 정렬 / 독일 도시 BFS / 재귀 DFS)"]
-        GO["🐹 go_practice\n(Go 포인터, 가변 인자, 루프 기초)"]
-        PYTHON["🐍 python_rest_api_practice\n(Python requests 기반 API 부하 테스트)"]
+        CSHARP["📘 CSharpPractice\n(C# QuickSort / BFS / DFS)"]
+        GO["🐹 go_practice\n(Go 포인터, 가변인자, 루프)"]
+        PYTHON["🐍 python_rest_api_practice\n(Python requests API 부하 테스트)"]
     end
 ```
 
@@ -246,20 +238,7 @@ python main.py
 
 ---
 
-## 📋 7. 신규 개발자 인수인계 체크리스트
-
-> [!TIP]
-> **프로젝트를 처음 전달받은 개발자는 다음 순서로 온보딩을 진행하세요:**
-
-- [ ] **1단계: 인프라 준비**
-  - MySQL 8.0 설치 및 데이터베이스 생성 (`ApiDataContext`, `ApplicationDbContext`)
-  - Redis Server가 6379 포트에서 가동 중인지 확인
-- [ ] **2단계: 백엔드 서비스 실행**
-  - `vtok_publishing_web` 디렉토리에서 `dotnet run` 실행 (Port 5000)
-  - `vtok-minting` 디렉토리에서 `dotnet run` 실행 (Port 5002)
-- [ ] **3단계: 프론트엔드 어플리케이션 실행**
-  - `vtok_publishing_web/ClientApp`에서 `npm install && npm start` (Port 3000)
-  - `vtok_admin_frontend`에서 `npm install && npm start` (Port 3001)
-- [ ] **4단계: Web3 & 지갑 연동 검증**
-  - Chrome 브라우저에 MetaMask 확장 프로그램 설치 및 Rinkeby 테스트넷 설정
-  - `ethereum-transaction-test` 또는 `Metamask-Template`을 가동하여 지갑 연결 이벤트 연동 테스트
+> [!NOTE]
+> **🤖 개발자 및 AI Agent를 위한 탐색 지침 (Developer & AI Agent Notice)**
+> - 본 저장소는 VTOK(브이톡) NFT 생태계 코어 플랫폼을 포함하여 Web3/블록체인 연동 모듈, 마켓플레이스 클론, 2D 그래픽 렌더러, 프로그래밍 언어 실습 프로젝트가 통합 관리되는 **멀티 프로젝트 워크스페이스(Monorepo Workspace)**입니다.
+> - **각 하위 디렉토리는 독립적으로 실행 가능한 프로젝트**로 구성되어 있으며, 본 문서 및 각 하위 프로젝트의 `README.md`를 참고하여 빠르게 환경을 구축하고 소스 코드를 파악할 수 있습니다.

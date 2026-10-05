@@ -1,70 +1,29 @@
-# Getting Started with Create React App
+# ⛓️ Ethereum Transaction Test (웹 지갑 연동 & 전송 테스트)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+이더리움 및 EVM 호환 네트워크에서 암호화폐(ETH) 및 ERC-20/721 토큰 전송과 잔액 조회를 테스트하는 React 클라이언트 애플리케이션입니다.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🛠️ 기술 스택 (Tech Stack)
 
-### `npm start`
+- **Frontend**: React.js
+- **Web3 Wallet Integration**: Web3.js, Ethers.js, MetaMask Wallet Provider, TrustWallet Provider
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📂 디렉토리 구조 (Directory Structure)
 
-### `npm test`
+```text
+ethereum-transaction-test/
+├── public/                # HTML 템플릿
+├── src/                   # 소스 코드
+│   ├── abi/               # 스마트 컨트랙트 ABI JSON (erc20ABI.json)
+│   ├── Component/         # 탭(Tabs) 및 상단바(TopBar) UI
+│   ├── Constant/          # 이더리움 체인 정보 및 상수 정의
+│   ├── Icon/              # 지갑 로고 SVG (MetaMask, TrustWallet)
+│   ├── Metamask/          # 메타마스크 전송, 잔액, ERC-20/721 전송 컴포넌트
+│   └── TrustWallet/       # 트러스트월렛 연동 컴포넌트
+└── README.md
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **[src README 바로가기](./src/README.md)**: src 소스 디렉토리 세부설명.

@@ -4,6 +4,47 @@ VTOK 플랫폼의 메인 브랜딩 웹사이트, 화이트리스트 사전 등�
 
 ---
 
+## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
+
+```mermaid
+flowchart LR
+    subgraph Client ["ClientApp (React 17)"]
+        UI["UI Components
+(MintBox, CountDownTimer)"]
+        WS_CLIENT["SignalR Client
+(HubConnectionBuilder)"]
+    end
+
+    subgraph Server ["ASP.NET Core Server"]
+        CTRL["MittingController
+(REST API Endpoints)"]
+        SVC["MittingService
+(Business & Validation)"]
+        TIMER["TimedHostedService
+(5s Background Loop)"]
+        HUB["ChatHub
+(SignalR WebSocket)"]
+    end
+
+    subgraph DB ["Data & Storage Layer"]
+        REDIS[("Redis Cache
+- Mitting{round}
+- MintingTime")]
+        MYSQL[("MySQL DB
+- SitinAddr
+- MittingAddr")]
+    end
+
+    UI -->|HTTP REST| CTRL
+    CTRL --> SVC
+    SVC --> MYSQL
+    TIMER --> REDIS
+    TIMER --> HUB
+    HUB -.->|WebSocket| WS_CLIENT
+```
+
+---
+
 ## 🏗️ 1. 모듈별 파일 단위 상세 명세 (File-by-File Technical Spec)
 
 ### 1.1 `ApiControllers/MittingController.cs` (REST API 컨트롤러)

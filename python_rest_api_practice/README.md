@@ -4,6 +4,38 @@ Python `requests` 및 `multiprocessing` 라이브러리를 이용하여 `vtok_pu
 
 ---
 
+## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
+
+```mermaid
+flowchart LR
+    subgraph Main ["main.py (Runner)"]
+        PROC["multiprocessing.Process
+(2 Workers Pool)"]
+        TEST["apiTest() Function"]
+    end
+
+    subgraph Client ["consume.py (Client)"]
+        REQ["requests Library
+(verify=False SSL Bypass)"]
+        FUNCS["API Functions
+(countdownInfoTest, mintingStatusTest,
+whitelistIncludeTest, countTotalMintingTest,
+addWhitelistTest, ApprovalTest)"]
+    end
+
+    subgraph Target ["vtok_publishing_web API"]
+        SERVER["ASP.NET Core REST API
+(https://localhost:5000/api)"]
+    end
+
+    PROC --> TEST
+    TEST --> FUNCS
+    FUNCS --> REQ
+    REQ -->|HTTP REST Requests| SERVER
+```
+
+---
+
 ## 🛠️ 주요 소스 스크립트 명세 (Script Technical Spec)
 
 ### 1. `consume.py` (vtok_publishing_web API 연동 클라이언트)

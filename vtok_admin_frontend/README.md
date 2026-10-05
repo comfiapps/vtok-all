@@ -4,6 +4,37 @@ VTOK 플랫폼 운영자를 위한 전용 React 백오피스 어드민 웹 애�
 
 ---
 
+## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
+
+```mermaid
+flowchart LR
+    subgraph View ["React Admin UI"]
+        PAGES["Pages
+(CategoryPage, FilePage)"]
+        DIALOGS["Dialogs & Controls
+(CategoryCreate, FileUpload)"]
+    end
+
+    subgraph Service ["API Layer"]
+        REQ["Axios Request Wrapper
+(src/api/request.js)"]
+        PROXY["setupProxy.js
+(Proxy /api -> localhost:8080)"]
+    end
+
+    subgraph Server ["Backend API"]
+        API["Admin API Server
+(/get/category, /del/category)"]
+    end
+
+    PAGES --> DIALOGS
+    DIALOGS --> REQ
+    REQ --> PROXY
+    PROXY -->|HTTP REST| API
+```
+
+---
+
 ## 🏗️ 1. 모듈별 소스 파일 단위 명세 (File-by-File Technical Spec)
 
 ### 1.1 `src/api/request.js` (Axios API 통신 인스턴스)

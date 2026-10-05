@@ -4,6 +4,42 @@
 
 ---
 
+## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
+
+```mermaid
+flowchart LR
+    subgraph UI ["React App Component"]
+        VIEW["App.js / Custom Accordion UI"]
+        INPUTS["Wallet & Transaction Forms"]
+    end
+
+    subgraph Wallets ["Provider Listeners"]
+        MM["Metamask Provider
+(window.ethereum)"]
+        TW["TrustWallet Provider
+(DeepLink / WalletConnect)"]
+    end
+
+    subgraph Web3Lib ["Web3 Client Library"]
+        ETHERS["Ethers.js v5
+(Web3Provider / Contract)"]
+    end
+
+    subgraph Blockchain ["EVM Network"]
+        EVM["Ethereum Mainnet / Testnet
+(ETH & ERC-20/721 Transfers)"]
+    end
+
+    VIEW --> INPUTS
+    INPUTS --> MM
+    INPUTS --> TW
+    MM --> ETHERS
+    TW --> ETHERS
+    ETHERS -->|JsonRpcSigner| EVM
+```
+
+---
+
 ## 🛠️ 기술 스택 및 연동 라이브러리 (Tech Stack)
 
 - **Frontend**: React.js 17+

@@ -4,6 +4,45 @@ VTOK 코어 시스템의 NFT 민팅, IPFS 메타데이터 업로드, 스마트 �
 
 ---
 
+## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
+
+```mermaid
+flowchart LR
+    subgraph Client ["HTTP API Request"]
+        REQ["POST /Mint
+(contractAddress, NFTMeta)"]
+    end
+
+    subgraph Service ["vtok-minting Engine"]
+        CTRL["MintController"]
+        IPFS_UTIL["IPFSFunction
+(NFT.Storage Upload)"]
+        WEB3_ENGINE["Nethereum Web3 Service
+(ERC721MintFunction)"]
+        DB_CTX["ApplicationDbContext
+(EF Core)"]
+    end
+
+    subgraph Infra ["External & Storage"]
+        IPFS["IPFS / NFT.Storage
+(Pinning API)"]
+        ETH["Ethereum Rinkeby Net
+(Smart Contract)"]
+        MYSQL[("MySQL DB
+- Tokens, Contracts")]
+    end
+
+    REQ --> CTRL
+    CTRL --> IPFS_UTIL
+    IPFS_UTIL -->|Bearer Auth| IPFS
+    CTRL --> WEB3_ENGINE
+    WEB3_ENGINE -->|RPC Tx| ETH
+    CTRL --> DB_CTX
+    DB_CTX --> MYSQL
+```
+
+---
+
 ## 🏗️ 1. 민팅 파이프라인 프로세스 (Minting Sequence Detail)
 
 ```mermaid

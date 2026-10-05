@@ -4,6 +4,37 @@
 
 ---
 
+## 📐 1. 모듈 내부 아키텍처 (Module Architecture)
+
+```mermaid
+flowchart LR
+    subgraph Controllers ["Controllers Layer"]
+        CART_C["CartController"]
+        NFTG_C["NFTGroupController"]
+        NFT_C["NFTController"]
+        USER_C["UserController"]
+    end
+
+    subgraph Services ["Business Services"]
+        CART_S["CartService"]
+        NFTG_S["NFTGroupService"]
+        NFT_S["NFTService"]
+        USER_S["UserService"]
+    end
+
+    subgraph Data ["EF Core Layer"]
+        DBC["ApplicationDbContext"]
+        MYSQL[("MySQL Database
+- User, NFTGroup, NFT, CartItem")]
+    end
+
+    Controllers --> Services
+    Services --> DBC
+    DBC --> MYSQL
+```
+
+---
+
 ## 🗄️ 데이터베이스 엔티티 상세 스키마 (`ApplicationDbContext`)
 
 1. **`User` 테이블** (사용자):

@@ -42,6 +42,7 @@ flowchart LR
 
     subgraph Web3 ["⛓️ Web3 실험실"]
         direction TB
+        HARDHAT["⛓️ vtok_ether_hardhat\n(Hardhat + Solidity ERC-721/20)"]
         ETH_TEST["⛓️ ethereum-transaction-test\n(React + Ethers.js/Web3.js)"]
         MINT_TEST["🧪 minting-test\n(ERC-721/1155 가스비 테스트 API)"]
         META_TMPL["🦊 Metamask-Template\n(React 지갑 연동 템플릿)"]
@@ -53,9 +54,11 @@ flowchart LR
         ASP["💻 ASPClone\n(ASP.NET Core API 실습)"]
     end
 
-    subgraph Demos ["🎮 UI & 그래픽"]
+    subgraph Demos ["🎮 UI & 프론트엔드"]
         direction TB
         SPINE["🎮 spine-player-test\n(Spine 2D WebGL 플레이어)"]
+        ISO_V1["🎨 isobox frontend v1\n(React 17 초기 버전)"]
+        ISO_V2["✨ isobox frontend v2\n(i18n 다국어 & v2 리팩터링)"]
     end
 
     subgraph Learning ["📘 언어 & 스택 실습"]
@@ -204,9 +207,16 @@ pip install requests
 python main.py
 ```
 
+#### 6) ⛓️ Hardhat 스마트 컨트랙트 환경 (`vtok_ether_hardhat`)
+```bash
+cd vtok_ether_hardhat
+npm install
+npx hardhat test
+```
+
 ---
 
-## 📂 3. 12대 프로젝트 카탈로그 & 하위 README 링크
+## 📂 3. 15대 프로젝트 카탈로그 & 하위 README 링크
 
 각 프로젝트 디렉토리 내부에는 소스 코드 및 컨트롤러 단위의 상세 명세서(`README.md`)가 구비되어 있습니다.
 
@@ -215,6 +225,9 @@ python main.py
 | 🌐 [**vtok_publishing_web**](./vtok_publishing_web) | VTOK 메인 브랜딩 웹사이트, 사전 대기열, SignalR 실시간 민팅 현황 (.NET 6 + React 17) | [백엔드 문서](./vtok_publishing_web/README.md) \| [ClientApp 문서](./vtok_publishing_web/ClientApp/README.md) |
 | 📊 [**vtok_admin_frontend**](./vtok_admin_frontend) | VTOK 백오피스 어드민 (카테고리 트리 & 파일 작업 로그 데이터그리드) | [어드민 문서](./vtok_admin_frontend/README.md) \| [src 문서](./vtok_admin_frontend/src/README.md) |
 | ⛏️ [**vtok-minting**](./vtok-minting) | NFT 코어 민팅 엔진 (IPFS NFT.Storage + Nethereum Web3 + ERC-721) | [민팅 엔진 문서](./vtok-minting/README.md) \| [MainApp 문서](./vtok-minting/MainApplication/README.md) |
+| ⛓️ [**vtok_ether_hardhat**](./vtok_ether_hardhat) | Hardhat 기반 Solidity ERC-721/20/1155 스마트 컨트랙트 개발, 테스트 및 Web3 스크립트 | [Hardhat 컨트랙트 문서](./vtok_ether_hardhat/README.md) |
+| 🎨 [**isobox frontend v1**](./isobox%20frontend%20v1) | iSOBOX 메인 클라이언트 v1 복사본 (React 17 + MUI v5 + Kaikas 민팅) | [v1 프론트엔드 문서](./isobox%20frontend%20v1/README.md) |
+| ✨ [**isobox frontend v2**](./isobox%20frontend%20v2) | iSOBOX 2세대 리팩터링 클라이언트 (i18n 다국어 지원, Contents 모듈화, SNS 연동) | [v2 프론트엔드 문서](./isobox%20frontend%20v2/README.md) |
 | 🧪 [**minting-test**](./minting-test) | ERC-721 / ERC-1155 스마트 컨트랙트 트랜잭션 & 가스비 한도 검증 API | [테스트 API 문서](./minting-test/README.md) \| [MintingTest 문서](./minting-test/MintingTest/README.md) |
 | ⛓️ [**ethereum-transaction-test**](./ethereum-transaction-test) | 이더리움 잔액 조회 & MetaMask / TrustWallet 전송 테스트 React 어플리케이션 | [지갑 테스트 문서](./ethereum-transaction-test/README.md) \| [src 문서](./ethereum-transaction-test/src/README.md) |
 | 🦊 [**Metamask-Template**](./Metamask-Template) | React용 MetaMask 지갑 연결 & 실시간 계정/체인 변경 이벤트 처리 보일러플레이트 | [템플릿 문서](./Metamask-Template/README.md) \| [src 문서](./Metamask-Template/src/README.md) |
@@ -224,6 +237,7 @@ python main.py
 | 📘 [**CSharpPractice**](./CSharpPractice) | C# 퀵 정렬(QuickSort), 독일 도시 BFS 탐색, 재귀 DFS 알고리즘 실습 | [C# 알고리즘 문서](./CSharpPractice/README.md) \| [소스 문서](./CSharpPractice/CSharpPractice/README.md) |
 | 🐹 [**go_practice**](./go_practice) | Go (Golang) 변수/상수 선언, 포인터 연산, 가변 인자 함수, 반복문 기초 실습 | [Go 실습 문서](./go_practice/README.md) \| [src 문서](./go_practice/src/README.md) |
 | 🐍 [**python_rest_api_practice**](./python_rest_api_practice) | Python `requests` & `multiprocessing` 기반 REST API 클라이언트 및 부하 테스트 | [파이썬 테스트 문서](./python_rest_api_practice/README.md) |
+
 
 ---
 
@@ -318,6 +332,10 @@ python main.py
   - `ERC721MintFunction`: `[Function("mint")] public string TokenURI { get; set; }`
   - `ERC721OwnerOfFunction`: `[Function("ownerOf")] public BigInteger TokenId { get; set; }`
   - `ERC721MintEventDto`: `[Event("Transfer")]` -> `TokenId` 이벤트를 통한 수령 디코딩
+- **Hardhat 스마트 컨트랙트 모듈 (`vtok_ether_hardhat`)**:
+  - OpenZeppelin 상속 기반 표준 ERC-721 / ERC-20 컨트랙트
+  - 표준 인터페이스를 자체 수동 구현한 순수 `Example-erc721-raw.sol`
+  - `delegatecall`, `receive()`/`fallback()`, `ecrecover` 전자 서명 검증 및 저수준 EVM 인터랙션
 
 ---
 

@@ -1,0 +1,9 @@
+{
+    "compilerOption": {
+        "target": "es5",
+        "module": "commonjs",
+    },
+    "exclude": [
+        "node_moudles"
+    ]
+}

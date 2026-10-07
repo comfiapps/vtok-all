@@ -1,0 +1,10 @@
+{
+    "image":"https://solarbots.io/mk1/lacrean/support/large/male_common.gif",
+    "attributes":[
+        {"trait_type":"Rarity","value":"Common"},
+        {"trait_type":"Faction","value":"Lacrean Empire"},
+        {"trait_type":"Class","value":"Support"},
+        {"trait_type":"Size","value":"Large"},
+        {"trait_type":"Type","value":"Male"}
+    ]
+}

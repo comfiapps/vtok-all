@@ -1,0 +1,14 @@
+//GET https://api.solarbots.io/mk1/11175.json
+
+
+GET https://ipfs.io/ipfs/bafybeih4dtj5wvvlejwjknv2ko5xzfwfnremxftj7wvi2bv43hspgjcs3i/11
+
+###
+#{ "lastPdfCid": "", "name": "", "description": "", "external_url": "", "image": "" }
+
+###
+https://ipfs.io/ipfs/QmVxqzw5UxyMKSyRL3syG7oCvaNPmkpNAwNp9WkNjY6HAo
+
+
+###
+GET https://fieldcoin-nft.herokuapp.com/api/token/146

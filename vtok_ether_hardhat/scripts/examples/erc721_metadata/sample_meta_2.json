@@ -1,0 +1,14 @@
+{
+    "image":"https://ipfs.infura.io/ipfs/QmNgWwwFTBb6cD1n615tPyz3XfmJM7PiDpxTaA3DAKfbdg",
+    "description":"NFTBoxes are a curated monthly box of NFTs on the newest gold standard of NFT technology.\n\nArtist: Kiv Bui\n\nSignature Address: 0xbF5D8de3a49D1dB9FE30965c6cA992d8a716854E\n\nSignature Hash: N/A\n\nSignature Message: N/A\n\nArtist Note: A young queen gets to hear a magical midnight story about the stars.",
+    "animation_url":"https://ipfs.infura.io/ipfs/QmdT7rTbHFHMvcLTEfDPTajLtchWn72sLAv5LWhQ6qJWRE",
+    "name":"Midnight Story #442",
+    "attributes":[
+        {"trait_type":"artist name","value":"Kiv Bui"},
+        {"trait_type":"edition number","value":"442 of 500"},
+        {"trait_type":"file type","value":".MP4"},
+        {"trait_type":"box name","value":"October 2021"},
+        {"trait_type":"theme","value":"Midnight"},
+        {"trait_type":"series","value":"Main"}
+    ]
+}

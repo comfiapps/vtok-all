@@ -42,8 +42,11 @@ function Home(props) {
                 switch (success) {
                     case "Wait": setMode(1); break;
                     case "Start": setMode(0); break;
-                    default: setMode(-1);
+                    default: setMode(0);
                 }
+            },
+            (err) => {
+                setMode(0);
             }
         );
     }, []);
@@ -102,8 +105,8 @@ function Home(props) {
                         <img src={sentence} width={"100%"} style={{maxWidth: 600}}/>
                         <Box minHeight={32} />
 
-                        {/*{mode === 0 && <MintBox toggle={() => setMode(1)} {...props}/>}*/}
-                        {/*{mode === 1 && <CountDownTimer toggle={() => setMode(0)} />}*/}
+                        {mode === 0 && <MintBox toggle={() => setMode(1)} {...props}/>}
+                        {mode === 1 && <CountDownTimer toggle={() => setMode(0)} />}
                     </Stack>
 
                     <Box flex={breakpoint ? 1 : 3} />

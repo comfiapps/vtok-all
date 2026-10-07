@@ -68,3 +68,10 @@ yarn-error.log*
 
 # macOS archive artifacts
 __MACOSX/
+
+# Hardhat & Solidity artifacts
+artifacts/
+cache/
+typechain/
+typechain-types/
+

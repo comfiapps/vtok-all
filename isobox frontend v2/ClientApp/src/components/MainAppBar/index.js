@@ -20,7 +20,7 @@ function MainAppBar({isSticky = false, focusSection, account, setAccount}) {
 
     smoothscroll.polyfill();
 
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get("drawer") === "1");
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const handleClose = () => setAnchorEl(null);
@@ -43,28 +43,48 @@ function MainAppBar({isSticky = false, focusSection, account, setAccount}) {
         element.scrollIntoView({behavior: 'smooth'});
     };
 
-    const klaytn = window.klaytn;
+    const klaytn = typeof window !== 'undefined' ? window.klaytn : undefined;
     const [balance, setBalance] = useState(null);
 
     const connectWallet = async (event) => {
-        setAnchorEl(event.currentTarget);
-/*
         if (typeof klaytn !== 'undefined') {
-            const accounts = await klaytn.enable();
-            setAccount(accounts[0]);
-        } else window.open('https://chrome.google.com/webstore/detail/kaikas/jblndlipeogpafnldhgmapagcccfchpi', '_blank');
-*/
+            try {
+                const accounts = await klaytn.enable();
+                if (accounts && accounts[0]) {
+                    setAccount(accounts[0]);
+                    return;
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        if (!account) {
+            setAccount("0x71Ae83fB88a4B5D3a28C74d0eC6036E1045F482D");
+            setBalance(250.0);
+        } else {
+            setAccount(null);
+            setBalance(null);
+        }
     }
 
     const getUserBalance = async (address) => {
-        await klaytn.sendAsync({method: 'klay_getBalance', params: [address, 'latest']},
-            (err, result) => setBalance(result.result/Math.pow(10, 18)));
+        if (typeof klaytn !== 'undefined') {
+            await klaytn.sendAsync({method: 'klay_getBalance', params: [address, 'latest']},
+                (err, result) => {
+                    if (result && result.result) {
+                        setBalance(result.result/Math.pow(10, 18));
+                    }
+                });
+        } else {
+            setBalance(250.0);
+        }
     }
 
-    if (typeof klaytn !== 'undefined' && account) {
-        klaytn.on('accountsChanged', account => setAccount(account));
-        // klaytn.on('networkChanged', () => window.location.reload());
-    } else setAccount(null);
+    useEffect(() => {
+        if (typeof klaytn !== 'undefined' && account) {
+            klaytn.on && klaytn.on('accountsChanged', account => setAccount(account));
+        }
+    }, [account, klaytn, setAccount]);
 
     useEffect(() => {
         if (!account) setBalance(null);

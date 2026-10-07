@@ -20,7 +20,7 @@ function ContainerSwitch({noContainer, ...props}) {
 }
 
 function Main(props) {
-    const { window } = props;
+    const { window: windowProp } = props;
     const theme = useTheme();
     const mobile = useMediaQuery(theme.breakpoints.down(values.mobileBreakpoint));
 
@@ -29,8 +29,18 @@ function Main(props) {
     const trigger = useScrollTrigger({
         disableHysteresis: true,
         threshold: 200,
-        target: window ? window() : undefined,
+        target: windowProp ? windowProp() : undefined,
     });
+
+    useEffect(() => {
+        const sec = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search).get("section") : null;
+        if (sec) {
+            setTimeout(() => {
+                const el = document.getElementById(`main_section_${sec}`);
+                if (el) el.scrollIntoView({behavior: "auto"});
+            }, 300);
+        }
+    }, []);
 
     return (
         <>

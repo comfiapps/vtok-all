@@ -41,7 +41,8 @@ function ServiceTabs() {
     const breakpoint = useMediaQuery(theme.breakpoints.down(840));
     const mobile = useMediaQuery(theme.breakpoints.down(values.mobileBreakpoint));
 
-    const [value, setValue] = useState(0);
+    const queryTab = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get("tab") : null;
+    const [value, setValue] = useState(queryTab !== null ? Number(queryTab) : 0);
     const [horizontal, setHorizontal] = useState(false);
 
     const handleChange = (newValue) => setValue(newValue);

@@ -4,6 +4,7 @@ import {Box, Typography, useMediaQuery} from "@mui/material";
 import strings from "../../res/strings";
 import {styled, useTheme} from "@mui/styles";
 import CountDownTimer from "../../components/CountDownTimer";
+import MintBox from "../../components/MintBox";
 import {useState, useEffect} from "react";
 
 import bg from "../../assets/tile_page_bg.png"
@@ -17,7 +18,8 @@ function Home(props) {
     const breakpoint = useMediaQuery(theme.breakpoints.down(900));
     const mobile = useMediaQuery(theme.breakpoints.down(values.mobileBreakpoint));
 
-    const [mode, setMode] = useState(0);
+    const queryMode = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get("mode") : null;
+    const [mode, setMode] = useState(queryMode === "1" ? 1 : 0);
 
     useEffect(() => {
         getMintingStatus(
@@ -25,9 +27,10 @@ function Home(props) {
                 switch (success) {
                     case "Wait": setMode(1); break;
                     case "Start": setMode(0); break;
-                    default: setMode(-1);
+                    default: break;
                 }
-            }
+            },
+            () => {}
         );
     }, []);
 
@@ -85,7 +88,11 @@ function Home(props) {
                     alignItems={"center"}
                     // minWidth={!breakpoint && 450}
                 >
-                    <CountDownTimer {...props}/>
+                    {mode === 0 ?
+                        <MintBox toggle={() => setMode(1)} {...props}/>
+                        :
+                        <CountDownTimer toggle={() => setMode(0)} {...props}/>
+                    }
                 </Stack>
             </Stack>
         </Box>

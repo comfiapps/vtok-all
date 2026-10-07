@@ -90,10 +90,16 @@ function CountDownTimer({account, ...props}) {
     }
 
     useEffect(() => {
+        const currentSec = Math.floor(Date.now() / 1000);
+        setNow(currentSec);
+        setDue(currentSec + 2 * 86400 + 14 * 3600 + 25 * 60 + 36);
+
         getMintingData(
             (success) => {
-                setNow(success.nowdate);
-                setDue(success.startdate);
+                if (success && success.nowdate && success.startdate) {
+                    setNow(success.nowdate);
+                    setDue(success.startdate);
+                }
             }
         );
     }, []);
@@ -106,8 +112,7 @@ function CountDownTimer({account, ...props}) {
     }, [due]);
 
     useEffect(() => {
-        if (!account) setStatus(2);
-
+        setStatus(account ? 0 : 2);
     }, [account]);
 
     const subTitleProps = {

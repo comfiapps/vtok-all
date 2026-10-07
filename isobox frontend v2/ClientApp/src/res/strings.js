@@ -22,7 +22,7 @@ export const languages = [
 const lang = languages.find(({key}) => key === mPath);
 
 const language = () => {
-    if (lang === undefined) return lang[0].source;
+    if (lang === undefined) return languages[0].source;
     return lang.source;
 }
 

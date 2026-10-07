@@ -70,33 +70,33 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START([🌐 웹사이트 접속]) --> INIT_STATUS[getMintingStatus 호출\nGET /api/mitting]
-    INIT_STATUS --> STATUS_SWITCH{민팅 상태 판별}
+    START(["🌐 웹사이트 접속"]) --> INIT_STATUS["getMintingStatus 호출<br/>GET /api/mitting"]
+    INIT_STATUS --> STATUS_SWITCH{"민팅 상태 판별"}
     
-    STATUS_SWITCH -->|'Start'| MODE_ACTIVE[mode = 0 : 민팅 활성화]
-    STATUS_SWITCH -->|'Wait'| MODE_WAIT[mode = 1 : 오픈 카운트다운 모드]
-    STATUS_SWITCH -->|'End' 또는 기타| MODE_CLOSE[mode = -1 : 민팅 마감 안내]
+    STATUS_SWITCH -->|'Start'| MODE_ACTIVE["mode = 0 : 민팅 활성화"]
+    STATUS_SWITCH -->|'Wait'| MODE_WAIT["mode = 1 : 오픈 카운트다운 모드"]
+    STATUS_SWITCH -->|'End' 또는 기타| MODE_CLOSE["mode = -1 : 민팅 마감 안내"]
 
-    MODE_ACTIVE --> CONNECT_REQ{Kaikas 지갑 연결 여부}
-    CONNECT_REQ -->|미연결| SHOW_CONNECT_BTN[지갑 연결 안내 버튼 표시]
-    CONNECT_REQ -->|연결 완료| FETCH_BALANCE[klay_getBalance 잔액 조회\nPEB / 10^18 -> KLAY 변환]
+    MODE_ACTIVE --> CONNECT_REQ{"Kaikas 지갑 연결 여부"}
+    CONNECT_REQ -->|미연결| SHOW_CONNECT_BTN["지갑 연결 안내 버튼 표시"]
+    CONNECT_REQ -->|연결 완료| FETCH_BALANCE["klay_getBalance 잔액 조회<br/>PEB / 10^18 ➔ KLAY 변환"]
 
-    FETCH_BALANCE --> INIT_WS[SignalR /chatHub 웹소켓 연결 수립]
-    INIT_WS --> LISTEN_WS[웹소켓 이벤트 구독\n- Count 수신 시: 잔여 수량 UI 즉시 갱신\n- Time 수신 시: 타이머 동기화\n- Web 수신 시: 모드 전환]
+    FETCH_BALANCE --> INIT_WS["SignalR /chatHub 웹소켓 연결 수립"]
+    INIT_WS --> LISTEN_WS["웹소켓 이벤트 구독<br/>- Count 수신 시: 잔여 수량 UI 즉시 갱신<br/>- Time 수신 시: 타이머 동기화<br/>- Web 수신 시: 모드 전환"]
 
-    LISTEN_WS --> CLICK_MINT[👤 '민팅하기' 버튼 클릭]
-    CLICK_MINT --> EXEC_CAPTCHA[reCAPTCHA executeAsync 실행 ➔ 토큰 발급]
-    EXEC_CAPTCHA --> CALL_SITIN[mintAPI 호출 ➔ POST /api/sitin\n서버 측 자격/화이트리스트 검증]
+    LISTEN_WS --> CLICK_MINT["👤 '민팅하기' 버튼 클릭"]
+    CLICK_MINT --> EXEC_CAPTCHA["reCAPTCHA executeAsync 실행 ➔ 토큰 발급"]
+    EXEC_CAPTCHA --> CALL_SITIN["mintAPI 호출 ➔ POST /api/sitin<br/>서버 측 자격/화이트리스트 검증"]
     
-    CALL_SITIN --> CHECK_SITIN{서버 검증 성공?}
-    CHECK_SITIN -->|실패 또는 한도초과| SHOW_ERR[에러 알림 출력 및 버튼 복구]
-    CHECK_SITIN -->|성공 To 및 Gas 획득| SEND_TX[klay_sendTransaction 요청\nKaikas 지갑 트랜잭션 서명 팝업]
+    CALL_SITIN --> CHECK_SITIN{"서버 검증 성공?"}
+    CHECK_SITIN -->|실패 또는 한도초과| SHOW_ERR["에러 알림 출력 및 버튼 복구"]
+    CHECK_SITIN -->|성공 To 및 Gas 획득| SEND_TX["klay_sendTransaction 요청<br/>Kaikas 지갑 트랜잭션 서명 팝업"]
 
-    SEND_TX --> USER_APPROVE{사용자 승인?}
-    USER_APPROVE -->|거부| CANCEL_MINT[민팅 취소]
-    USER_APPROVE -->|승인 Tx_id 획득| CALL_APPROVE[approvalAPI 호출\nPOST /api/approval\nAddr, Tx_id, Count, Round]
+    SEND_TX --> USER_APPROVE{"사용자 승인?"}
+    USER_APPROVE -->|거부| CANCEL_MINT["민팅 취소"]
+    USER_APPROVE -->|승인 Tx_id 획득| CALL_APPROVE["approvalAPI 호출<br/>POST /api/approval<br/>Addr, Tx_id, Count, Round"]
 
-    CALL_APPROVE --> DONE([🎉 민팅 완료 & UI 최신화])
+    CALL_APPROVE --> DONE(["🎉 민팅 완료 & UI 최신화"])
 ```
 
 ---

@@ -84,33 +84,33 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    INIT([🌐 앱 최초 마운트: App.js]) --> DETECT_LANG[res/strings.js: URL pathname 검사\n- / 또는 /ko ➔ la-ko.js 로드\n- /en ➔ la-en.js 로드]
-    DETECT_LANG --> LOAD_SECTIONS[values.js 섹션 매니페스트 취득\n총 7개 핵심 인터랙티브 섹션 구성]
+    INIT["🌐 앱 최초 마운트: App.js"] --> DETECT_LANG["res/strings.js: URL pathname 검사<br/>- / 또는 /ko ➔ la-ko.js 로드<br/>- /en ➔ la-en.js 로드"]
+    DETECT_LANG --> LOAD_SECTIONS["values.js 섹션 매니페스트 취득<br/>총 7개 핵심 인터랙티브 섹션 구성"]
     
-    LOAD_SECTIONS --> RENDER_MAIN[layouts/Main/index.js 렌더링\nScroller 컴포넌트로 뷰포트 오케스트레이션]
+    LOAD_SECTIONS --> RENDER_MAIN["layouts/Main/index.js 렌더링<br/>Scroller 컴포넌트로 뷰포트 오케스트레이션"]
     
     subgraph ScrollPipeline ["스크롤 감지 & 동적 스타일 파이프라인"]
-        RENDER_MAIN --> SCROLL_EVT[휠/터치 스크롤 이벤트 감지]
-        SCROLL_EVT --> SCROLLER_EVAL{현재 뷰포트 Y좌표 계산}
-        SCROLLER_EVAL --> UPDATE_SECTION[setFocusSection 인덱스 갱신]
-        UPDATE_SECTION --> SYNC_APPBAR[MainAppBar 네비게이션 버튼 하이라이트 동기화]
-        SCROLL_EVT --> TRIGGER_STICKY{스크롤 >= 200px ?}
-        TRIGGER_STICKY -->|Yes| STICKY_ON[MainAppBar 불투명 흰색 & 보더 활성화]
-        TRIGGER_STICKY -->|No| STICKY_OFF[MainAppBar 반투명 블러 모드 유지]
+        RENDER_MAIN --> SCROLL_EVT["휠/터치 스크롤 이벤트 감지"]
+        SCROLL_EVT --> SCROLLER_EVAL{"현재 뷰포트 Y좌표 계산"}
+        SCROLLER_EVAL --> UPDATE_SECTION["setFocusSection 인덱스 갱신"]
+        UPDATE_SECTION --> SYNC_APPBAR["MainAppBar 네비게이션 버튼 하이라이트 동기화"]
+        SCROLL_EVT --> TRIGGER_STICKY{"스크롤 >= 200px ?"}
+        TRIGGER_STICKY -->|Yes| STICKY_ON["MainAppBar 불투명 흰색 & 보더 활성화"]
+        TRIGGER_STICKY -->|No| STICKY_OFF["MainAppBar 반투명 블러 모드 유지"]
     end
 
     subgraph ServiceTabsLoop ["ServiceTabs 5초 자동 회전 서브루틴"]
-        TAB_MOUNT[ServiceTabs 마운트] --> TAB_TIMER[5초 간격 setInterval 실행]
-        TAB_TIMER --> NEXT_TAB[values.serviceContents 인덱스 순환: 0->1->2->3->0]
-        NEXT_TAB --> SWITCH_VISUAL[해당 탭의 타이틀, 설명 및 고해상도 이미지 표시]
+        TAB_MOUNT["ServiceTabs 마운트"] --> TAB_TIMER["5초 간격 setInterval 실행"]
+        TAB_TIMER --> NEXT_TAB["values.serviceContents 인덱스 순환: 0 ➔ 1 ➔ 2 ➔ 3 ➔ 0"]
+        NEXT_TAB --> SWITCH_VISUAL["해당 탭의 타이틀, 설명 및 고해상도 이미지 표시"]
     end
 
     subgraph Web3Pipeline ["Web3 지갑 연결 및 민팅 라이프사이클"]
-        CLICK_WALLET[사용자 지갑 연결 버튼 클릭] --> CHECK_KAIKAS{window.klaytn 존재 여부}
-        CHECK_KAIKAS -->|미설치| GUIDE_STORE[Chrome 웹스토어 Kaikas 설치 링크 안내]
-        CHECK_KAIKAS -->|설치됨| REQ_ACCOUNT[klaytn.enable() 계정 승인 요청]
-        REQ_ACCOUNT --> FETCH_BAL[klay_getBalance: PEB / 10^18 -> KLAY 잔액 상태 주입]
-        FETCH_BAL --> READY_MINT[MintBox 활성화]
+        CLICK_WALLET["사용자 지갑 연결 버튼 클릭"] --> CHECK_KAIKAS{"window.klaytn 존재 여부"}
+        CHECK_KAIKAS -->|미설치| GUIDE_STORE["Chrome 웹스토어 Kaikas 설치 링크 안내"]
+        CHECK_KAIKAS -->|설치됨| REQ_ACCOUNT["klaytn.enable() 계정 승인 요청"]
+        REQ_ACCOUNT --> FETCH_BAL["klay_getBalance: PEB / 10^18 ➔ KLAY 잔액 상태 주입"]
+        FETCH_BAL --> READY_MINT["MintBox 활성화"]
     end
 ```
 

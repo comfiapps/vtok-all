@@ -1,0 +1,1 @@
+# 🖥️ iSOBOX Frontend v1 ClientApp\n\nReact 17 기반의 iSOBOX 메인 클라이언트 애플리케이션 소스 디렉토리입니다.\n\n* src/components/: MintBox, CountDownTimer, HousePreview 등 핵심 UI 컴포넌트\n* src/layouts/: Main, NFT, Partner, Roadmap, Service, Team 섹션 레이아웃\n* src/api/: 백엔드 REST API 통신 클라이언트\n

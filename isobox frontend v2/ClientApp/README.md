@@ -1,0 +1,1 @@
+# 🖥️ iSOBOX Frontend v2 ClientApp\n\n2세대 전면 리팩터링 iSOBOX 클라이언트 애플리케이션 소스 디렉토리입니다.\n\n* src/layouts/Contents/: Overview, Avatar, Story, NFTInIsobox 등 모듈화된 콘텐츠 레이어\n* src/layouts/Team/: MainMember, KeyMember, Advisor 등 팀/자문단 레이아웃\n* src/res/lang/: 영어/한국어 다국어(i18n) 리소스 딕셔너리\n
